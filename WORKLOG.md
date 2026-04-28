@@ -13,6 +13,62 @@ related:
 
 ---
 
+## Round 16 — 2026-04-28 — v0.4.6 腿部結構重新設計（兩段關節 + 彈簧 + 4-bar 連動 + 平滑 walk）
+
+### 用戶需求
+腿部結構重新設計，反映實機 4-bar linkage：
+- **兩段關節**（shoulder + knee）
+- **彈簧讓關節回彈**
+- **走路姿態更平穩自然**
+
+### 變更（`js/simulator-3d.js` 大改）
+
+#### 1. 新增 SpringCurve class
+- 自訂 `THREE.Curve` subclass，產生螺旋線（沿 Y 軸）
+- 給 `TubeGeometry` 用，畫出 5 圈螺旋彈簧
+
+#### 2. 重新設計腿部 mesh（仿實機配色）
+| 部件 | 舊 | 新 |
+|---|---|---|
+| 上腿 | 8mm 圓柱、銀灰 | **16×50×10 mm 黃色 BoxGeometry**（仿實機 Bittle 上腿）|
+| 下腿 | 6mm 圓柱、銀灰 | **12×35×6 mm 黑色 BoxGeometry**（仿實機下腿）|
+| 關節 | 一個藍球 | **shoulder + knee 兩個橘色 LED 球**（呼應實機 servo logo）|
+| **彈簧** | ❌ | **TubeGeometry + SpringCurve 銀白螺旋**（5 圈，2 mm 線徑）|
+| 足底 | 銀灰球 | 黑色橡膠球 |
+| 頭部 | 藍色球 | 黃色球 + 兩個三角錐耳朵（仿實機）|
+| 機身 | 亮藍 | **黑色**（仿實機）|
+| 雙眼 | 橘色 | **藍色發光**（仿實機 LED）|
+
+#### 3. 4-bar linkage 連動模擬（setLeg 改寫）
+- 新簽章：`setLeg(id, shoulderDeg, kneeOverride = null)`
+- 預設 `kneeRatio = -0.45`：當 shoulder +50°，knee 自動 -22.5°（仿實機 4-bar 連動）
+- 特殊動作可顯式 override（傳 kneeOverride 數值）
+- **彈簧視覺反饋**：shoulder 角度愈大、彈簧 scale.y 愈短（張力暗示）
+
+#### 4. walk 動畫平滑化
+- 從「2 個 keyframe + sleep 320ms」升級為「**lerp 細分 8 frame，每 frame 35ms**」
+- 每循環 18 frame，4 循環共 ~2.5 秒，動作連續自然
+- 利用 4-bar 連動，walk 時 knee 自動跟著動 → 看起來真的像實機
+
+### Commit message 建議
+```
+feat(3d): redesign leg with 2-segment joints, compliant spring, and 4-bar linkage
+
+- Add SpringCurve and TubeGeometry-based visual spring
+- Yellow upper / black lower / orange joints (real Bittle colors)
+- setLeg() now auto-couples knee via 4-bar ratio (-0.45)
+- Smooth walk with 8-frame lerp interpolation per phase
+- Match real-machine appearance from user-provided videos and photos
+```
+
+### 下一步建議
+1. push
+2. Pages 1-3 分鐘後重整
+3. 切到 3D 看新外觀（黃黑配色 + 銀白彈簧）+ walk 平滑度
+4. 如果還想要更平滑或彈簧感，再 fine-tune
+
+---
+
 ## Round 15 — 2026-04-28 — v0.4.5 walk 實機影片校正：改成 bound 步態（推翻 v0.4.3-4 的「左右搖」誤判）
 
 ### 用戶提供

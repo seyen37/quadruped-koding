@@ -13,6 +13,25 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+// ===== 彈簧曲線（給 TubeGeometry 用） =====
+// 沿 Y 軸方向產生螺旋線，用於模擬實機 Bittle 4-bar linkage 的 compliant spring
+class SpringCurve extends THREE.Curve {
+  constructor(height = 20, radius = 5, turns = 4) {
+    super();
+    this.height = height;
+    this.radius = radius;
+    this.turns = turns;
+  }
+  getPoint(t, target = new THREE.Vector3()) {
+    const angle = t * Math.PI * 2 * this.turns;
+    return target.set(
+      Math.cos(angle) * this.radius,
+      t * this.height,
+      Math.sin(angle) * this.radius
+    );
+  }
+}
+
 class BittleSimulator3D {
   constructor(containerEl) {
     this.container = containerEl;
@@ -160,10 +179,13 @@ class BittleSimulator3D {
   initBittle() {
     this.bittle = new THREE.Group();
 
-    // v0.4.1 配色升級：身體變亮藍、腿變中灰，全面提高對比
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4a7fc1, roughness: 0.4, metalness: 0.3 });
-    const accentMat = new THREE.MeshStandardMaterial({ color: 0xffb84a, emissive: 0xff9d3a, emissiveIntensity: 0.5 }); // 改橘色高對比
-    const legMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, roughness: 0.5, metalness: 0.4 }); // 銀灰金屬感
+    // v0.4.6 新配色：仿實機 Bittle 黃黑配色 + 銀白彈簧
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x202428, roughness: 0.5, metalness: 0.2 }); // 黑色機身
+    const accentMat = new THREE.MeshStandardMaterial({ color: 0xffb84a, emissive: 0xff9d3a, emissiveIntensity: 0.4 }); // 橘色 LED
+    const upperLegMat = new THREE.MeshStandardMaterial({ color: 0xf5b800, roughness: 0.4, metalness: 0.3 }); // 上腿亮黃（仿實機）
+    const lowerLegMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.6, metalness: 0.3 }); // 下腿黑色
+    const springMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, roughness: 0.3, metalness: 0.9 }); // 銀白金屬彈簧
+    const headMat = new THREE.MeshStandardMaterial({ color: 0xf5b800, roughness: 0.4 }); // 黃色頭
 
     // 身體（200×60×100 mm）
     const body = new THREE.Mesh(new THREE.BoxGeometry(200, 60, 100), bodyMat);
@@ -173,28 +195,40 @@ class BittleSimulator3D {
     // 頭部 group（旋轉中心在頸部，可 head pan）
     this.head = new THREE.Group();
     this.head.position.set(130, 20, 0);
-    const headBall = new THREE.Mesh(new THREE.SphereGeometry(35, 24, 16), bodyMat);
+    const headBall = new THREE.Mesh(new THREE.SphereGeometry(35, 24, 16), headMat);
     headBall.castShadow = true;
     this.head.add(headBall);
 
-    // 雙眼
+    // 雙眼（藍色發光，仿實機）
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0x4a90e2, emissiveIntensity: 0.8 });
     [25, -25].forEach((z) => {
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(8, 12, 12), accentMat);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(8, 12, 12), eyeMat);
       eye.position.set(20, 5, z);
       this.head.add(eye);
     });
 
-    // 嘴巴（小條）
+    // 嘴巴 / 鼻子（小尖銳）
     const mouth = new THREE.Mesh(
-      new THREE.BoxGeometry(2, 2, 20),
-      new THREE.MeshStandardMaterial({ color: 0x5fa9e8 })
+      new THREE.BoxGeometry(8, 4, 12),
+      bodyMat
     );
     mouth.position.set(28, -8, 0);
     this.head.add(mouth);
 
+    // 耳朵（兩個三角錐）
+    [40, -40].forEach((z) => {
+      const ear = new THREE.Mesh(
+        new THREE.ConeGeometry(8, 20, 4),
+        headMat
+      );
+      ear.position.set(-15, 25, z * 0.5);
+      ear.rotation.z = Math.PI;
+      this.head.add(ear);
+    });
+
     this.bittle.add(this.head);
 
-    // 4 條腿
+    // 4 條腿（v0.4.6 全新設計：兩段關節 + 彈簧 + 仿實機配色）
     this.legs = {};
     const legPositions = {
       LF: { x: 60, z: 50 },
@@ -204,50 +238,70 @@ class BittleSimulator3D {
     };
 
     Object.entries(legPositions).forEach(([id, pos]) => {
-      // shoulder pivot group（rotation.x = shoulder pitch）
+      // ===== Shoulder pivot group（servo 8/9/10/11 控制這個的 rotation.x）=====
       const legGroup = new THREE.Group();
       legGroup.position.set(pos.x, -30, pos.z);
 
-      // upper leg（從 shoulder 往下 60 mm）
-      const upper = new THREE.Mesh(
-        new THREE.CylinderGeometry(8, 8, 60, 12),
-        legMat
-      );
-      upper.position.y = -30;
-      upper.castShadow = true;
-      legGroup.add(upper);
-
-      // shoulder 關節指示（藍球）
+      // Shoulder 關節指示（橘色 LED 球，仿實機 servo logo 位置）
       const shoulderBall = new THREE.Mesh(
-        new THREE.SphereGeometry(7, 12, 12),
+        new THREE.SphereGeometry(8, 12, 12),
         accentMat
       );
       legGroup.add(shoulderBall);
 
-      // knee group（rotation.x = knee）
-      const kneeGroup = new THREE.Group();
-      kneeGroup.position.y = -60;
-
-      const lower = new THREE.Mesh(
-        new THREE.CylinderGeometry(6, 6, 50, 10),
-        legMat
+      // Upper leg — 黃色塊（仿實機 Bittle 上腿）
+      const upper = new THREE.Mesh(
+        new THREE.BoxGeometry(16, 50, 10),
+        upperLegMat
       );
-      lower.position.y = -25;
+      upper.position.y = -25;
+      upper.castShadow = true;
+      legGroup.add(upper);
+
+      // ===== Knee group（servo 12/13/14/15 控制這個的 rotation.x）=====
+      // 也由 4-bar linkage 自動連動於 shoulder（見 setLeg 的 kneeRatio 參數）
+      const kneeGroup = new THREE.Group();
+      kneeGroup.position.y = -50;
+
+      // Knee 關節指示（橘色 LED）
+      const kneeBall = new THREE.Mesh(
+        new THREE.SphereGeometry(6, 12, 12),
+        accentMat
+      );
+      kneeGroup.add(kneeBall);
+
+      // ★ Compliant Spring — 用 TubeGeometry 沿 SpringCurve 螺旋線（仿實機 4-bar 彈簧）
+      const springGeo = new THREE.TubeGeometry(
+        new SpringCurve(28, 5.5, 5),  // 高 28mm、半徑 5.5mm、5 圈
+        96, 1.0, 8, false
+      );
+      const spring = new THREE.Mesh(springGeo, springMat);
+      spring.position.y = -36;  // 從 knee 往下開始
+      // 旋轉 180° 讓彈簧方向朝下
+      spring.rotation.x = Math.PI;
+      kneeGroup.add(spring);
+
+      // Lower leg — 黑色（仿實機 Bittle 下腿）
+      const lower = new THREE.Mesh(
+        new THREE.BoxGeometry(12, 35, 6),
+        lowerLegMat
+      );
+      lower.position.y = -22;
       lower.castShadow = true;
       kneeGroup.add(lower);
 
-      // 足底（小球）
+      // 足底（圓球，黑色橡膠感）
       const foot = new THREE.Mesh(
         new THREE.SphereGeometry(7, 12, 12),
-        legMat
+        lowerLegMat
       );
-      foot.position.y = -50;
+      foot.position.y = -42;
       kneeGroup.add(foot);
 
       legGroup.add(kneeGroup);
       this.bittle.add(legGroup);
 
-      this.legs[id] = { group: legGroup, knee: kneeGroup };
+      this.legs[id] = { group: legGroup, knee: kneeGroup, spring: spring };
     });
 
     this.scene.add(this.bittle);
@@ -319,11 +373,20 @@ class BittleSimulator3D {
     if (this.statusLine) this.statusLine.textContent = '狀態（3D）：' + text;
   }
 
-  setLeg(id, shoulderDeg, kneeDeg = 0) {
+  // v0.4.6: 新增 4-bar linkage 連動模擬
+  // 預設 kneeRatio = -0.45：當 shoulder 旋轉 +50°，knee 自動 -22.5°（4-bar 連動）
+  // 這模擬實機 4-bar + 彈簧腿的「shoulder 動 → knee 跟著反向動」自然行為
+  // 特殊動作可手動 override（如 sit 用顯式 kneeDeg 而非比例）
+  setLeg(id, shoulderDeg, kneeOverride = null) {
     const leg = this.legs[id];
     if (!leg) return;
     leg.group.rotation.x = THREE.MathUtils.degToRad(shoulderDeg);
+    // 4-bar 自動連動（除非顯式指定 kneeOverride）
+    const kneeDeg = (kneeOverride !== null) ? kneeOverride : shoulderDeg * -0.45;
     leg.knee.rotation.x = THREE.MathUtils.degToRad(kneeDeg);
+    // 彈簧視覺反饋：絕對角度愈大，彈簧視覺微微縮（暗示張力變化）
+    const stress = Math.min(Math.abs(shoulderDeg) / 60, 1);
+    leg.spring.scale.y = 1 - stress * 0.2;
   }
 
   resetLegs() {
@@ -371,31 +434,56 @@ class BittleSimulator3D {
   // 已調整以接近實機視覺。詳見 Round 13 WORKLOG。
   animations = {
     walk: async function () {
-      // v0.4.5 實機影片觀察校正：bound 步態
-      // 前腿同步大幅前伸、後腿同步大幅後蹬（拉長狀），身體保持水平
-      // 不是身體左右搖（那是我之前理解錯誤）
-      for (let i = 0; i < 5; i++) {
-        // 跨步階段：前腿大幅前、後腿大幅後（4-bar 讓腿伸得很遠）
-        this.setLeg('LF', 50); this.setLeg('RF', 50);
-        this.setLeg('LB', -50); this.setLeg('RB', -50);
-        await this.sleep(320);
-        // 收腿階段：反向，4 腿往身體中心收
-        this.setLeg('LF', -25); this.setLeg('RF', -25);
-        this.setLeg('LB', 25); this.setLeg('RB', 25);
-        await this.sleep(320);
+      // v0.4.6 平滑化：用 lerp 在每階段細分 8 個 frame，讓動作連續自然
+      // bound 步態，腿前後大幅擺動，4-bar 讓 knee 自動連動
+      const lerp = THREE.MathUtils.lerp;
+      const subFrames = 8;
+      const frameMs = 35;
+
+      const setBound = (frontDeg, backDeg) => {
+        this.setLeg('LF', frontDeg); this.setLeg('RF', frontDeg);
+        this.setLeg('LB', backDeg); this.setLeg('RB', backDeg);
+      };
+
+      for (let cycle = 0; cycle < 4; cycle++) {
+        // 跨步階段：從收腿位置 (front -25, back +25) → 大跨步 (front +50, back -50)
+        for (let p = 0; p <= subFrames; p++) {
+          const t = p / subFrames;
+          setBound(lerp(-25, 50, t), lerp(25, -50, t));
+          await this.sleep(frameMs);
+        }
+        // 收腿階段：反向回收
+        for (let p = 0; p <= subFrames; p++) {
+          const t = p / subFrames;
+          setBound(lerp(50, -25, t), lerp(-50, 25, t));
+          await this.sleep(frameMs);
+        }
       }
       this.resetLegs();
     },
 
     walkReverse: async function () {
-      // 倒退 bound：前後相反方向
-      for (let i = 0; i < 5; i++) {
-        this.setLeg('LF', -50); this.setLeg('RF', -50);
-        this.setLeg('LB', 50); this.setLeg('RB', 50);
-        await this.sleep(320);
-        this.setLeg('LF', 25); this.setLeg('RF', 25);
-        this.setLeg('LB', -25); this.setLeg('RB', -25);
-        await this.sleep(320);
+      // 倒退：起始與目標翻轉
+      const lerp = THREE.MathUtils.lerp;
+      const subFrames = 8;
+      const frameMs = 35;
+
+      const setBound = (frontDeg, backDeg) => {
+        this.setLeg('LF', frontDeg); this.setLeg('RF', frontDeg);
+        this.setLeg('LB', backDeg); this.setLeg('RB', backDeg);
+      };
+
+      for (let cycle = 0; cycle < 4; cycle++) {
+        for (let p = 0; p <= subFrames; p++) {
+          const t = p / subFrames;
+          setBound(lerp(25, -50, t), lerp(-25, 50, t));
+          await this.sleep(frameMs);
+        }
+        for (let p = 0; p <= subFrames; p++) {
+          const t = p / subFrames;
+          setBound(lerp(-50, 25, t), lerp(50, -25, t));
+          await this.sleep(frameMs);
+        }
       }
       this.resetLegs();
     },
