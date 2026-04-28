@@ -13,6 +13,28 @@ related:
 
 ---
 
+## Round 19 — 2026-04-28 — v0.4.9 美觀微調（頭/腳位置、加脖子）
+
+### 用戶確認
+✅ Walk 方向對了！剩下視覺美觀問題：頭部插入 body、腿從 body 中段伸出。
+
+### 變更
+- **Body 略縮**：200×60×100 → **180×50×100 mm**（讓 head / 腿視覺更突出）
+- **新增脖子**：黑色 CylinderGeometry 連接 body 與 head（略微傾斜向上）
+- **頭部往前推**：`(130, 20, 0)` → `(140, 25, 0)`
+- **腿位置外移**：
+  - shoulder x: ±60 → **±70**（更靠近 body 邊緣 ±90）
+  - shoulder z: ±50 → **±55**（凸出 body z=±50 之外）
+  - shoulder y: -30 → -25（對齊新 body 底邊）
+- **shoulder LED 加大**：球半徑 8 → **12**（更明顯）
+
+### Commit message 建議
+```
+style(3d): adjust head/leg positions and add neck for better visual
+```
+
+---
+
 ## Round 18 — 2026-04-28 — v0.4.8 預設載入「當程式開始」hat block + walk 問題待釐清
 
 ### 用戶反饋

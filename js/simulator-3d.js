@@ -187,14 +187,24 @@ class BittleSimulator3D {
     const springMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, roughness: 0.3, metalness: 0.9 }); // 銀白金屬彈簧
     const headMat = new THREE.MeshStandardMaterial({ color: 0xf5b800, roughness: 0.4 }); // 黃色頭
 
-    // 身體（200×60×100 mm）
-    const body = new THREE.Mesh(new THREE.BoxGeometry(200, 60, 100), bodyMat);
+    // 身體（180×50×100 mm，v0.4.9 略縮）
+    const body = new THREE.Mesh(new THREE.BoxGeometry(180, 50, 100), bodyMat);
     body.castShadow = true;
     this.bittle.add(body);
 
-    // 頭部 group（旋轉中心在頸部，可 head pan）
+    // ★ v0.4.9：加脖子（黑色短柱連接 body 與 head）
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(15, 18, 25, 12),
+      bodyMat
+    );
+    neck.position.set(105, 10, 0);
+    neck.rotation.z = -Math.PI / 2.5; // 略微傾斜向上
+    neck.castShadow = true;
+    this.bittle.add(neck);
+
+    // 頭部 group（旋轉中心在頸部，可 head pan）— v0.4.9 往前推
     this.head = new THREE.Group();
-    this.head.position.set(130, 20, 0);
+    this.head.position.set(140, 25, 0);
     const headBall = new THREE.Mesh(new THREE.SphereGeometry(35, 24, 16), headMat);
     headBall.castShadow = true;
     this.head.add(headBall);
@@ -228,23 +238,23 @@ class BittleSimulator3D {
 
     this.bittle.add(this.head);
 
-    // 4 條腿（v0.4.6 全新設計：兩段關節 + 彈簧 + 仿實機配色）
+    // 4 條腿（v0.4.9：shoulder 移到 body 邊緣外、ball 加大）
     this.legs = {};
     const legPositions = {
-      LF: { x: 60, z: 50 },
-      RF: { x: 60, z: -50 },
-      LB: { x: -60, z: 50 },
-      RB: { x: -60, z: -50 },
+      LF: { x: 70, z: 55 },   // 略外移，凸出 body 邊（body 範圍 ±90, ±50）
+      RF: { x: 70, z: -55 },
+      LB: { x: -70, z: 55 },
+      RB: { x: -70, z: -55 },
     };
 
     Object.entries(legPositions).forEach(([id, pos]) => {
-      // ===== Shoulder pivot group（servo 8/9/10/11 控制這個的 rotation.x）=====
+      // ===== Shoulder pivot group =====
       const legGroup = new THREE.Group();
-      legGroup.position.set(pos.x, -30, pos.z);
+      legGroup.position.set(pos.x, -25, pos.z); // y 從 -30 → -25 對齊新 body 底邊
 
-      // Shoulder 關節指示（橘色 LED 球，仿實機 servo logo 位置）
+      // Shoulder 關節指示 — v0.4.9 加大到 12mm 更明顯
       const shoulderBall = new THREE.Mesh(
-        new THREE.SphereGeometry(8, 12, 12),
+        new THREE.SphereGeometry(12, 16, 16),
         accentMat
       );
       legGroup.add(shoulderBall);
