@@ -13,6 +13,58 @@ related:
 
 ---
 
+## Round 20 — 2026-04-28 — v0.4.10 ★ 腿部加「ㄑ字形」預設站姿 + 4-bar 彈簧連動
+
+### 用戶觀察（從實機側面照）
+1. 大腿與身體有**預設角度**（不是垂直向下，是斜向後 / 前下方）
+2. 膝關節與大腿也有**固定夾角**（小腿反折形成 ㄑ字形）
+3. 膝關節的彈簧讓 knee 角度可以**隨大腿角度變化**（4-bar 連動的真實意涵）
+4. 比例不對 — 頭應比身體小、身體應更細長
+
+### 變更
+**腿部加預設姿勢系統**：
+```js
+LF: baseShoulder = -35°（大腿向後下傾）, baseKnee = +70°（小腿前折）
+RF: baseShoulder = -35°,                    baseKnee = +70°
+LB: baseShoulder = +35°（大腿向前下傾）,    baseKnee = -70°（小腿後折）
+RB: baseShoulder = +35°,                    baseKnee = -70°
+```
+
+→ 從側面看 4 腿呈**「ㄑ字形」**，腳掌往身體中心匯聚，與實機完全一致。
+
+**setLeg 改為「基準 + 偏移」模式**：
+- 動畫時 `shoulderDeg` 是相對於 baseShoulder 的偏移
+- knee 自動 = baseKnee + (shoulderDeg × -0.55) — **彈簧 4-bar 連動加強**
+- resetLegs 不再回 0°，而是回到 ㄑ字形基準站姿
+
+**比例調整（依實機照）**：
+- Body：180×50×100 → **200×40×80**（更細長）
+- Head 球：35 → **28**（縮小，與身體比例 1:3）
+- Eyes：8 → 6
+- Ears：高 20 → 18，更尖
+- Neck：略短，傾斜角度調
+
+**新增尾巴**（細錐體，斜向上揚，仿實機）
+
+**彈簧視覺反饋強化**：scale 變化 0.2 → **0.35**（更明顯的張力暗示）
+
+### Commit message 建議
+```
+feat(3d): add ㄑ-shape default leg pose and 4-bar spring coupling
+
+- Each leg has baseShoulder/baseKnee preset angles
+- Front legs lean back-down, back legs lean front-down
+- setLeg() now uses base+offset model
+- Body slimmer, head smaller, add tail (match real Bittle proportions)
+```
+
+### 下一步建議
+1. push
+2. 確認靜止站姿是 ㄑ字形（4 腿斜出）
+3. 按執行 walk 看 4-bar 彈簧連動效果
+
+---
+
 ## Round 19 — 2026-04-28 — v0.4.9 美觀微調（頭/腳位置、加脖子）
 
 ### 用戶確認

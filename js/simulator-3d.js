@@ -187,131 +187,148 @@ class BittleSimulator3D {
     const springMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, roughness: 0.3, metalness: 0.9 }); // 銀白金屬彈簧
     const headMat = new THREE.MeshStandardMaterial({ color: 0xf5b800, roughness: 0.4 }); // 黃色頭
 
-    // 身體（180×50×100 mm，v0.4.9 略縮）
-    const body = new THREE.Mesh(new THREE.BoxGeometry(180, 50, 100), bodyMat);
+    // 身體 v0.4.10：依實機照比例（細長 body）
+    const body = new THREE.Mesh(new THREE.BoxGeometry(200, 40, 80), bodyMat);
     body.castShadow = true;
     this.bittle.add(body);
 
-    // ★ v0.4.9：加脖子（黑色短柱連接 body 與 head）
+    // 脖子（黑色短柱）v0.4.10
     const neck = new THREE.Mesh(
-      new THREE.CylinderGeometry(15, 18, 25, 12),
+      new THREE.CylinderGeometry(12, 16, 22, 12),
       bodyMat
     );
-    neck.position.set(105, 10, 0);
-    neck.rotation.z = -Math.PI / 2.5; // 略微傾斜向上
+    neck.position.set(115, 5, 0);
+    neck.rotation.z = -Math.PI / 2.8; // 略微傾斜向上
     neck.castShadow = true;
     this.bittle.add(neck);
 
-    // 頭部 group（旋轉中心在頸部，可 head pan）— v0.4.9 往前推
+    // 頭部 group v0.4.10：縮小頭、依實機比例
     this.head = new THREE.Group();
-    this.head.position.set(140, 25, 0);
-    const headBall = new THREE.Mesh(new THREE.SphereGeometry(35, 24, 16), headMat);
+    this.head.position.set(150, 18, 0);
+    const headBall = new THREE.Mesh(new THREE.SphereGeometry(28, 24, 16), headMat);
     headBall.castShadow = true;
     this.head.add(headBall);
 
-    // 雙眼（藍色發光，仿實機）
+    // 雙眼 v0.4.10：縮小
     const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0x4a90e2, emissiveIntensity: 0.8 });
-    [25, -25].forEach((z) => {
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(8, 12, 12), eyeMat);
-      eye.position.set(20, 5, z);
+    [20, -20].forEach((z) => {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(6, 12, 12), eyeMat);
+      eye.position.set(16, 4, z);
       this.head.add(eye);
     });
 
-    // 嘴巴 / 鼻子（小尖銳）
+    // 嘴
     const mouth = new THREE.Mesh(
-      new THREE.BoxGeometry(8, 4, 12),
+      new THREE.BoxGeometry(7, 3, 9),
       bodyMat
     );
-    mouth.position.set(28, -8, 0);
+    mouth.position.set(22, -8, 0);
     this.head.add(mouth);
 
-    // 耳朵（兩個三角錐）
-    [40, -40].forEach((z) => {
+    // 耳朵 v0.4.10：更尖
+    [22, -22].forEach((z) => {
       const ear = new THREE.Mesh(
-        new THREE.ConeGeometry(8, 20, 4),
+        new THREE.ConeGeometry(5, 18, 4),
         headMat
       );
-      ear.position.set(-15, 25, z * 0.5);
+      ear.position.set(-8, 22, z);
       ear.rotation.z = Math.PI;
       this.head.add(ear);
     });
 
+    // 尾巴（細小錐體，仿實機，斜上揚）v0.4.10 新增
+    const tail = new THREE.Mesh(
+      new THREE.ConeGeometry(4, 40, 6),
+      bodyMat
+    );
+    tail.position.set(-115, 15, 0);
+    tail.rotation.z = -Math.PI / 4;
+    this.bittle.add(tail);
+
     this.bittle.add(this.head);
 
-    // 4 條腿（v0.4.9：shoulder 移到 body 邊緣外、ball 加大）
+    // 4 條腿 v0.4.10：依實機照「ㄑ字形」站姿
+    // 大腿（從 shoulder 看）向斜下後/前傾（前腿向後下、後腿向前下）
+    // 小腿（從 knee 看）反折，腳掌向身體中心匯聚
     this.legs = {};
     const legPositions = {
-      LF: { x: 70, z: 55 },   // 略外移，凸出 body 邊（body 範圍 ±90, ±50）
-      RF: { x: 70, z: -55 },
-      LB: { x: -70, z: 55 },
-      RB: { x: -70, z: -55 },
+      LF: { x: 75, z: 50, baseShoulder: -35, baseKnee: 70 },   // 前左：大腿向後下、小腿反折前下
+      RF: { x: 75, z: -50, baseShoulder: -35, baseKnee: 70 },
+      LB: { x: -75, z: 50, baseShoulder: 35, baseKnee: -70 },  // 後左：大腿向前下、小腿反折後下
+      RB: { x: -75, z: -50, baseShoulder: 35, baseKnee: -70 },
     };
 
     Object.entries(legPositions).forEach(([id, pos]) => {
-      // ===== Shoulder pivot group =====
+      // ===== Shoulder pivot group（含預設 base 角度）=====
       const legGroup = new THREE.Group();
-      legGroup.position.set(pos.x, -25, pos.z); // y 從 -30 → -25 對齊新 body 底邊
+      legGroup.position.set(pos.x, -22, pos.z);
+      legGroup.rotation.z = THREE.MathUtils.degToRad(pos.baseShoulder); // ★ 預設角度
 
-      // Shoulder 關節指示 — v0.4.9 加大到 12mm 更明顯
+      // Shoulder LED 球（橘色）
       const shoulderBall = new THREE.Mesh(
-        new THREE.SphereGeometry(12, 16, 16),
+        new THREE.SphereGeometry(10, 16, 16),
         accentMat
       );
       legGroup.add(shoulderBall);
 
-      // Upper leg — 黃色塊（仿實機 Bittle 上腿）
+      // Upper leg（黃色，仿實機）
       const upper = new THREE.Mesh(
-        new THREE.BoxGeometry(16, 50, 10),
+        new THREE.BoxGeometry(14, 45, 9),
         upperLegMat
       );
-      upper.position.y = -25;
+      upper.position.y = -22.5;
       upper.castShadow = true;
       legGroup.add(upper);
 
-      // ===== Knee group（servo 12/13/14/15 控制這個的 rotation.x）=====
-      // 也由 4-bar linkage 自動連動於 shoulder（見 setLeg 的 kneeRatio 參數）
+      // ===== Knee group（含預設 base 角度，反折形成 ㄑ字形）=====
       const kneeGroup = new THREE.Group();
-      kneeGroup.position.y = -50;
+      kneeGroup.position.y = -45;
+      kneeGroup.rotation.z = THREE.MathUtils.degToRad(pos.baseKnee); // ★ 預設角度
 
-      // Knee 關節指示（橘色 LED）
+      // Knee LED 球
       const kneeBall = new THREE.Mesh(
-        new THREE.SphereGeometry(6, 12, 12),
+        new THREE.SphereGeometry(7, 12, 12),
         accentMat
       );
       kneeGroup.add(kneeBall);
 
-      // ★ Compliant Spring — 用 TubeGeometry 沿 SpringCurve 螺旋線（仿實機 4-bar 彈簧）
+      // ★ Compliant Spring
       const springGeo = new THREE.TubeGeometry(
-        new SpringCurve(28, 5.5, 5),  // 高 28mm、半徑 5.5mm、5 圈
+        new SpringCurve(20, 5, 5),
         96, 1.0, 8, false
       );
       const spring = new THREE.Mesh(springGeo, springMat);
-      spring.position.y = -36;  // 從 knee 往下開始
-      // 旋轉 180° 讓彈簧方向朝下
+      spring.position.y = 0;
       spring.rotation.x = Math.PI;
       kneeGroup.add(spring);
 
-      // Lower leg — 黑色（仿實機 Bittle 下腿）
+      // Lower leg（黑色，仿實機）
       const lower = new THREE.Mesh(
-        new THREE.BoxGeometry(12, 35, 6),
+        new THREE.BoxGeometry(11, 30, 5),
         lowerLegMat
       );
-      lower.position.y = -22;
+      lower.position.y = -35;
       lower.castShadow = true;
       kneeGroup.add(lower);
 
-      // 足底（圓球，黑色橡膠感）
+      // 足底（黑色橡膠球）
       const foot = new THREE.Mesh(
-        new THREE.SphereGeometry(7, 12, 12),
+        new THREE.SphereGeometry(6, 12, 12),
         lowerLegMat
       );
-      foot.position.y = -42;
+      foot.position.y = -52;
       kneeGroup.add(foot);
 
       legGroup.add(kneeGroup);
       this.bittle.add(legGroup);
 
-      this.legs[id] = { group: legGroup, knee: kneeGroup, spring: spring };
+      this.legs[id] = {
+        group: legGroup,
+        knee: kneeGroup,
+        spring: spring,
+        baseShoulder: pos.baseShoulder,
+        baseKnee: pos.baseKnee,
+      };
     });
 
     this.scene.add(this.bittle);
@@ -383,33 +400,29 @@ class BittleSimulator3D {
     if (this.statusLine) this.statusLine.textContent = '狀態（3D）：' + text;
   }
 
-  // v0.4.7 ★ 重要修正：rotation.x → rotation.z
-  // 原因：在 Three.js 預設座標系（Y up, head 在 +X），
-  //   - rotation.x 是繞 X 軸（前後軸）→ 腿**側向左右晃**（用戶截圖看到的「擺動方向錯」）
-  //   - rotation.z 是繞 Z 軸（左右軸）→ 腿**前後擺動**（實機 walk 的真實動作）
-  // 此版全面改用 rotation.z，walk / sit / rest / hi 等所有動作的腿擺動都會修正方向。
+  // v0.4.10: setLeg 改為「基準站姿 + 動畫偏移」
+  // - 每條腿有 baseShoulder / baseKnee 預設角度（ㄑ字形）
+  // - 動畫時 shoulderDeg 是相對於基準的偏移
+  // - knee 4-bar 自動連動（kneeRatio = -0.55，更明顯的彈簧連動）
+  // - 彈簧視覺反饋更明顯（scale 0 ~ 0.35）
   setLeg(id, shoulderDeg, kneeOverride = null) {
     const leg = this.legs[id];
     if (!leg) return;
-    leg.group.rotation.z = THREE.MathUtils.degToRad(shoulderDeg);
-    // 4-bar 自動連動（除非顯式指定 kneeOverride）
-    const kneeDeg = (kneeOverride !== null) ? kneeOverride : shoulderDeg * -0.45;
-    leg.knee.rotation.z = THREE.MathUtils.degToRad(kneeDeg);
-    // 彈簧視覺反饋：絕對角度愈大，彈簧視覺微微縮（暗示張力變化）
+    // 真實 shoulder 角度 = 基準 + 偏移
+    const realShoulder = leg.baseShoulder + shoulderDeg;
+    leg.group.rotation.z = THREE.MathUtils.degToRad(realShoulder);
+    // 4-bar 連動：knee 也是基準 + 偏移（彈簧帶動）
+    const kneeAnimOffset = (kneeOverride !== null) ? kneeOverride : shoulderDeg * -0.55;
+    const realKnee = leg.baseKnee + kneeAnimOffset;
+    leg.knee.rotation.z = THREE.MathUtils.degToRad(realKnee);
+    // 彈簧視覺反饋更明顯：當 shoulder 偏離 base 愈大、彈簧愈縮（張力暗示）
     const stress = Math.min(Math.abs(shoulderDeg) / 60, 1);
-    if (leg.spring) leg.spring.scale.y = 1 - stress * 0.2;
+    if (leg.spring) leg.spring.scale.y = 1 - stress * 0.35;
   }
 
   resetLegs() {
-    Object.keys(this.legs).forEach((id) => {
-      const leg = this.legs[id];
-      if (leg) {
-        // 重置兩個 axis 避免殘留
-        leg.group.rotation.set(0, 0, 0);
-        leg.knee.rotation.set(0, 0, 0);
-        if (leg.spring) leg.spring.scale.y = 1;
-      }
-    });
+    // 重置 = setLeg(id, 0)：恢復基準 ㄑ字形站姿
+    Object.keys(this.legs).forEach((id) => this.setLeg(id, 0));
   }
 
   resetHead() {
