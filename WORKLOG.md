@@ -13,6 +13,45 @@ related:
 
 ---
 
+## Round 14 — 2026-04-28 — v0.4.4 walk/pushUp 加大幅度 + 規劃 v0.6 IR 遙控
+
+### 用戶反饋
+v0.4.3 的 walk / pushUp 改善不夠明顯（用戶實機觀察「左右擺動」「腳長變化」效果仍不到位）。
+
+### 變更
+- **`js/simulator-3d.js` walk**：rotation.z 從 ±0.08 → **±0.22（約 ±13°）** + 加 position.x ±8 mm 左右滑移
+- **`js/simulator-3d.js` walkReverse**：同樣加大
+- **`js/simulator-3d.js` pushUp**：position.y 振幅從 50 → **105 mm**（-75 ~ +30）
+- **`js/simulator-svg.js` walk / walkReverse**：腿擺動幅度從 ±20°/±10° → **±35°/±15°**（同側腿一起、強化左右搖視覺）
+- **`docs/roadmap.md` 新增 v0.6.0 紅外線遙控模擬**：21 按鈕虛擬遙控器、IR Code 對照、自定義按鈕
+
+### 用戶提供的參考機器狗（給附錄 E.4 用）
+2 款其他四足機器狗截圖（具體型號待確認）：
+
+| 款式 | 特色 |
+|---|---|
+| 黑色 AI 大模型款（似 XGO / Hiwonder PuppyPi Pro 級）| 語音大模型 + 視覺大模型 + 多模態大模型 + SLAM + 機械臂 + 表情顯示 + 20 組仿生動作 |
+| 綠色 Maker 款（似 Adeept / Yahboom 級）| RPi/Jetson + 鋁合金結構 + 超音波 + 鏡頭 |
+
+→ 主筆記附錄 E.4「其他四足機器狗對照」會補上（下個 round 處理）
+
+### 用戶提到的「未來方向」
+- 紅外線遙控器模擬 → 已加進 roadmap v0.6
+- 多機器人感測器擴充（語音 / SLAM / 視覺大模型）→ 已在 ADR-006 多機器人架構規劃內
+
+### Commit message 建議
+```
+fix(animations): increase walk and pushUp animation amplitudes for visibility
+feat(roadmap): plan v0.6 IR remote simulator (21-button virtual remote)
+```
+
+### 下一步建議
+1. push
+2. 試新動畫，walk 應該明顯左右搖晃、pushUp 整體上下大幅振盪
+3. 如果還不對，請用戶具體描述「應該長什麼樣」（例如錄個實機影片片段）
+
+---
+
 ## Round 13 — 2026-04-28 — v0.4.3 修正 walk / pushUp 動畫以符合實機 4-bar 彈簧腿機構
 
 ### 用戶實機觀察（重要技術洞察）
