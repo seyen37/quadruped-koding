@@ -13,6 +13,83 @@ related:
 
 ---
 
+## ⭐ Round 22 — 2026-04-28 — 改名為 DogLab Coding + repo rename to quadruped-koding
+
+### 用戶決定
+- 產品名：**DogLab Coding**（中文：動感小狗 編程實驗室）
+- Repo 名：**quadruped-koding**（兩個 GitHub 帳號都改）
+- 詳見 ADR-010（DECISIONS.md）
+
+### 我已改的檔案
+- ✅ `index.html`：title + brand → DogLab Coding（emoji 🐕 → 🐕‍🦺）
+- ✅ `README.md`：全篇「Petoi Bittle Koding」/「Bittle Koding」→ DogLab Coding；URL `petoi-bittle-koding` → `quadruped-koding`；加上「Bittle、Petoi 為商標，僅描述支援硬體時使用」聲明
+- ✅ `js/main.js`：log 訊息「Petoi Bittle Koding v0.1.0 已就緒」→「DogLab Coding v0.4.11 已就緒」
+- ✅ `DECISIONS.md`：新增 ADR-010 紀錄改名決策
+- ✅ `WORKLOG.md`：本 Round 條目
+
+### 用戶要做的（GitHub UI + 本地 git）
+1. **GitHub seyen37 帳號**：repo Settings → 改名 `petoi-bittle-koding` → `quadruped-koding`
+2. **GitHub seyenbot 帳號**：同樣操作
+3. **本地 git remote 更新 URL**（命令見回應）
+4. **本地資料夾**保留 `petoi-bittle-koding`（不必改，避免 cwd 設定混亂）
+5. **GitHub Pages 重新確認**：seyen37 repo Settings → Pages 看是否需重啟
+
+### 保留不改（暫）
+- 內部 namespace `BittleApp`（命名很多，下個 round 改成 `App` 或 `DogLab` 較乾淨）
+- JS 檔名 `bittle-blocks.js`、`bittle-skills-data.js`（這些是「Bittle 機器人」的積木定義，名稱仍合理）
+- LICENSE 著作權人「許士彥」（不變）
+
+### Commit message 建議
+```
+refactor: rename product to DogLab Coding (avoid Petoi Bittle trademark)
+
+- Update title, brand, README, ADR-010
+- Repo name change pending: petoi-bittle-koding → quadruped-koding
+- Internal BittleApp namespace kept for now (separate ADR)
+```
+
+### 下一步
+1. 用戶 push 本 round 改動
+2. 用戶 GitHub UI 改 repo 名
+3. 用戶更新本地 git remote URL
+4. 確認 Pages 新 URL `https://seyen37.github.io/quadruped-koding/` 上線
+
+---
+
+## Round 21 — 2026-04-28 — v0.4.11 7 個視覺修正 + 命名議題討論
+
+### 用戶反饋（截圖比對實機）
+| 問題 | 修正 |
+|---|---|
+| 版本號顯示 v0.1.0 MVP（舊）| 改為 **v0.4.11** |
+| 頭部與身體連接太低 | head.position.y 18 → **35**（拉高 17mm） |
+| 脖子太短連接不順 | 拉長 22 → **35**，傾斜度加 |
+| 後腿 knee 方向與實機相反 | LB/RB baseKnee -70 → **+70**（同前腿方向） |
+| 後腿連接 body 位置太前 | LB/RB x -75 → **-85**（往身後移 10mm） |
+| 足部太小，腿比例怪 | foot 半徑 6 → **10**（球狀加大） |
+| 尾巴方向反 | rotation.z -π/4 → **+π/4** |
+| 尾巴沒接到 body 尾部 | position.x -115 → **-105**（body 邊緣外） |
+
+### 命名議題（待用戶決定）
+**「Petoi Bittle」是廠商商標，用作工具名稱有侵權疑慮**。本 round 提出 4 個中性名候選：
+- 小型四足機器狗 積木編程器 / Quadruped Koding
+- 小狗積木編程器 / PupCode / PuppyBlocks
+- 四足拼積木 / QuadBlocks
+- 動感小狗 編程實驗室 / DogLab Coding
+
+待用戶決定產品名 + 是否同步改 repo 名稱（GitHub repo rename 操作）。
+
+### Commit message 建議
+```
+fix(3d): 7 visual adjustments — head higher, back legs, foot, tail, version
+```
+
+### 下一步
+1. push 視覺修正
+2. 用戶決定產品命名 → 下個 round 全面更名（LICENSE / README / index.html title / 文件交叉引用）
+
+---
+
 ## Round 20 — 2026-04-28 — v0.4.10 ★ 腿部加「ㄑ字形」預設站姿 + 4-bar 彈簧連動
 
 ### 用戶觀察（從實機側面照）

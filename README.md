@@ -1,7 +1,10 @@
-# Petoi Bittle Koding
+# DogLab Coding 🐕‍🦺
 
-> Scratch-like 網頁編程工具，給 Petoi Bittle 機器狗
-> Status：**v0.1.0 MVP**（最小可用版）
+> **機器狗編程實驗室** — Scratch-like 網頁拖曳積木 + 即時 SVG / 3D 模擬 + Web Serial 連實機。
+> 目前支援 Petoi Bittle（NyBoard/BiBoard），未來擴充至雙足機器人、Unitree Go1、microbit 自走車。
+> Status：**v0.4.11**（多機器人架構 + 3D 模擬器 + 51 動作積木）
+
+「Bittle」、「Petoi」為廠商商標，僅在描述支援硬體時使用。本工具與 Petoi Camp 無附屬關係。
 
 仿 [NUWA Kebbi codelab](https://codelab.nuwarobotics.com/) 的拖曳積木編程體驗，但底層改接 Petoi OpenCat 框架的 56 個內建 skills + ASCII 序列協定。支援 **SVG 模擬** 與 **Web Serial 實機連線** 雙模式。
 
@@ -9,7 +12,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│ 🐕 Petoi Bittle Koding v0.1.0          [模式]  [連接]  [停止]  [▶]  │
+│ 🐕 DogLab Coding v0.1.0          [模式]  [連接]  [停止]  [▶]  │
 ├─────────────────────────────────────┬───────────────────────────────┤
 │  動作 / Servo / 流程 / 數學 / 文字  │       [Bittle SVG 圖]        │
 │                                     │                               │
@@ -27,15 +30,15 @@
 
 部署到 GitHub Pages 後直接訪問：
 ```
-https://<your-username>.github.io/petoi-bittle-koding/
+https://<your-username>.github.io/quadruped-koding/
 ```
 
 ### 本地開發
 
 ```bash
 # 1. clone 專案
-git clone https://github.com/<your-username>/petoi-bittle-koding.git
-cd petoi-bittle-koding
+git clone https://github.com/<your-username>/quadruped-koding.git
+cd quadruped-koding
 
 # 2. 啟動本地 server（推薦，避免 file:// 限制）
 python3 -m http.server 8000
@@ -74,7 +77,7 @@ python3 -m http.server 8000
 
 ```bash
 # 1. 建立 GitHub repo 並 push
-git remote add origin https://github.com/<your-username>/petoi-bittle-koding.git
+git remote add origin https://github.com/<your-username>/quadruped-koding.git
 git branch -M main
 git push -u origin main
 
@@ -82,7 +85,7 @@ git push -u origin main
 # Settings → Pages → Source 選 main branch / root → Save
 
 # 3. 訪問
-# https://<your-username>.github.io/petoi-bittle-koding/
+# https://<your-username>.github.io/quadruped-koding/
 ```
 
 `.nojekyll` 檔案告訴 GitHub Pages 不要用 Jekyll 處理，避免 `_` 開頭資料夾被忽略。

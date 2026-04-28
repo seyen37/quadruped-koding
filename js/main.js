@@ -64,7 +64,7 @@ window.addEventListener('DOMContentLoaded', () => {
     console.warn('預設 workspace 載入失敗:', e);
   }
 
-  BittleApp.log('Petoi Bittle Koding v0.1.0 已就緒', 'success');
+  BittleApp.log('DogLab Coding v0.4.11 已就緒', 'success');
   BittleApp.log('提示：把動作積木接到「🟢 當程式開始」下面，按 ▶ 執行查看效果');
 
   // === 綁定按鈕 ===

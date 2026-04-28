@@ -192,19 +192,19 @@ class BittleSimulator3D {
     body.castShadow = true;
     this.bittle.add(body);
 
-    // 脖子（黑色短柱）v0.4.10
+    // 脖子 v0.4.11：拉長以連接抬高的頭部
     const neck = new THREE.Mesh(
-      new THREE.CylinderGeometry(12, 16, 22, 12),
+      new THREE.CylinderGeometry(11, 15, 35, 12),
       bodyMat
     );
-    neck.position.set(115, 5, 0);
-    neck.rotation.z = -Math.PI / 2.8; // 略微傾斜向上
+    neck.position.set(115, 18, 0);
+    neck.rotation.z = -Math.PI / 3.5; // 較斜向上
     neck.castShadow = true;
     this.bittle.add(neck);
 
-    // 頭部 group v0.4.10：縮小頭、依實機比例
+    // 頭部 group v0.4.11：抬高頭部位置
     this.head = new THREE.Group();
-    this.head.position.set(150, 18, 0);
+    this.head.position.set(150, 35, 0);
     const headBall = new THREE.Mesh(new THREE.SphereGeometry(28, 24, 16), headMat);
     headBall.castShadow = true;
     this.head.add(headBall);
@@ -236,13 +236,13 @@ class BittleSimulator3D {
       this.head.add(ear);
     });
 
-    // 尾巴（細小錐體，仿實機，斜上揚）v0.4.10 新增
+    // 尾巴 v0.4.11：方向反、接到 body 尾部
     const tail = new THREE.Mesh(
       new THREE.ConeGeometry(4, 40, 6),
       bodyMat
     );
-    tail.position.set(-115, 15, 0);
-    tail.rotation.z = -Math.PI / 4;
+    tail.position.set(-105, 15, 0); // 更靠 body（body x = -100）
+    tail.rotation.z = Math.PI / 4;  // 方向相反（向後上揚）
     this.bittle.add(tail);
 
     this.bittle.add(this.head);
@@ -251,11 +251,12 @@ class BittleSimulator3D {
     // 大腿（從 shoulder 看）向斜下後/前傾（前腿向後下、後腿向前下）
     // 小腿（從 knee 看）反折，腳掌向身體中心匯聚
     this.legs = {};
+    // v0.4.11：後腿往後移 + 後腿 knee 方向反轉（修正與實機相反的問題）
     const legPositions = {
       LF: { x: 75, z: 50, baseShoulder: -35, baseKnee: 70 },   // 前左：大腿向後下、小腿反折前下
       RF: { x: 75, z: -50, baseShoulder: -35, baseKnee: 70 },
-      LB: { x: -75, z: 50, baseShoulder: 35, baseKnee: -70 },  // 後左：大腿向前下、小腿反折後下
-      RB: { x: -75, z: -50, baseShoulder: 35, baseKnee: -70 },
+      LB: { x: -85, z: 50, baseShoulder: 35, baseKnee: 70 },   // 後左：往後移，knee 方向同前腿
+      RB: { x: -85, z: -50, baseShoulder: 35, baseKnee: 70 },
     };
 
     Object.entries(legPositions).forEach(([id, pos]) => {
@@ -311,9 +312,9 @@ class BittleSimulator3D {
       lower.castShadow = true;
       kneeGroup.add(lower);
 
-      // 足底（黑色橡膠球）
+      // 足底（v0.4.11：加大球狀讓比例自然）
       const foot = new THREE.Mesh(
-        new THREE.SphereGeometry(6, 12, 12),
+        new THREE.SphereGeometry(10, 16, 16),
         lowerLegMat
       );
       foot.position.y = -52;
