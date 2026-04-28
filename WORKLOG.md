@@ -13,6 +13,43 @@ related:
 
 ---
 
+## 🎉 Round 8 — 2026-04-28 — GitHub Pages 正式上線
+
+### 里程碑
+**v0.1.0 MVP 公開可用**：
+```
+https://seyen37.github.io/petoi-bittle-koding/
+```
+
+任何人不必裝任何軟體，瀏覽器打開即可使用 Bittle Koding 編程工具。
+
+### 確認驗證項目
+- ✅ Blockly toolbox 9 個分類完整中文顯示
+- ✅ 「🟢 當程式開始」hat block 預載
+- ✅ SVG Bittle 模擬器正常渲染（4 腿 + 頭 + 身體）
+- ✅ 執行記錄即時輸出
+- ✅ 模式 / 連接 / 停止 / 執行 4 按鈕正常
+
+### 完成的智財保護
+- ✅ LICENSE 真名「許士彥 (Hsu Shih-Yen)」+ MIT 授權
+- ✅ 主 repo Public（社群分享）+ 備份 repo Private（災難恢復）
+- ✅ Git commit 歷史 + GitHub timestamp = 公開時間戳證據
+- ✅ Round 1-7 所有變更都已記錄在 WORKLOG.md（GitHub 可追溯）
+
+### Commit message 建議（紀錄這次 WORKLOG 更新）
+```
+docs: log Round 8 — GitHub Pages live deployment milestone
+```
+
+### 下一步（用戶選一個方向）
+- A. 補完 v0.2 的 50 個動作積木
+- B. 加 v0.2 事件積木
+- C. 開始第 2 個機器人（建議 microbit 自走車）
+- D. 寫教學任務卡
+- E. 實機測試（拿到 Bittle 時做）
+
+---
+
 ## Round 7 — 2026-04-28 — 智財保護強化（LICENSE 真名 + 備份改 Private）
 
 ### 變更
