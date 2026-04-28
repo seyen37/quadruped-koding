@@ -13,6 +13,47 @@ related:
 
 ---
 
+## Round 15 — 2026-04-28 — v0.4.5 walk 實機影片校正：改成 bound 步態（推翻 v0.4.3-4 的「左右搖」誤判）
+
+### 用戶提供
+Petoi 官方 promo 影片（0:24-0:27 段）的 10 張關鍵 frame。
+
+### 發現我之前理解錯了
+v0.4.3 / 4 把用戶口語的「走路看起來是左右擺動」解讀成「身體 z 軸 roll」（左右搖晃），實際看影片後發現完全不對：
+
+| 實機真實 | 我之前以為 |
+|---|---|
+| **bound 步態**：前腿同步大幅前伸 + 後腿同步大幅後蹬（拉長身體狀）| 同側腿一起 + 身體左右搖（pacing-like）|
+| 身體**保持水平**（沒有 z roll） | 用 rotation.z ±0.22 大幅左右翻 |
+| 腿擺動 **±50° 以上**（4-bar 讓腳掌伸得很遠）| ±15° 太小 |
+| 「左右擺動」= 用戶口語的「前後反覆來回」 | 字面誤解為 left-right roll |
+
+### 變更
+- **`js/simulator-3d.js` walk / walkReverse**：移除 rotation.z 與 position.x，改成「前腿同步前/後擺 + 後腿同步反向擺」+ 幅度加到 ±50°
+- **`js/simulator-svg.js` walk / walkReverse**：同樣 bound 步態調整
+- **主筆記 Part 1.3.5**：修正 walk 描述為 bound 步態 + 加「歷史筆記」說明這個校正過程
+
+### 學到的經驗（值得記）
+- **「左右擺動」這個中文口語對非機械工程師可能指「來回擺動」（時間意義），不是「左右方向」（空間意義）**
+- 實機影片是不可替代的資訊源，比文字描述精準度高 10 倍
+- 即使有「實機照片」也不夠 — 動態的步態必須看影片才能正確理解
+
+### Commit message 建議
+```
+fix(walk): correct walk to bound gait based on real-machine video footage
+
+- Previous left-right body roll was misinterpretation of user's verbal description
+- Real walk = front legs forward stride + back legs back kick simultaneously
+- Amplitude increased from ±15° to ±50° to match 4-bar mechanism reach
+```
+
+### 下一步
+1. push
+2. 重整 Pages 看新動畫
+3. 如果 walk 終於對了，下一個方向選
+
+---
+
 ## Round 14 — 2026-04-28 — v0.4.4 walk/pushUp 加大幅度 + 規劃 v0.6 IR 遙控
 
 ### 用戶反饋

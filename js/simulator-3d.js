@@ -371,43 +371,32 @@ class BittleSimulator3D {
   // 已調整以接近實機視覺。詳見 Round 13 WORKLOG。
   animations = {
     walk: async function () {
-      // 實機 4-bar 彈簧腿：走路是大幅左右搖晃為主、腿小幅前後
-      // v0.4.4 加大幅度：rotation.z 從 ±0.08 → ±0.22（約 ±13°）
-      for (let i = 0; i < 6; i++) {
-        // 重心向右（body roll right）
-        this.bittle.rotation.z = -0.22;
-        this.bittle.position.x = 8;
-        this.setLeg('LF', 12); this.setLeg('LB', 12);
-        this.setLeg('RF', -6); this.setLeg('RB', -6);
-        await this.sleep(280);
-        // 重心向左
-        this.bittle.rotation.z = 0.22;
-        this.bittle.position.x = -8;
-        this.setLeg('LF', -6); this.setLeg('LB', -6);
-        this.setLeg('RF', 12); this.setLeg('RB', 12);
-        await this.sleep(280);
+      // v0.4.5 實機影片觀察校正：bound 步態
+      // 前腿同步大幅前伸、後腿同步大幅後蹬（拉長狀），身體保持水平
+      // 不是身體左右搖（那是我之前理解錯誤）
+      for (let i = 0; i < 5; i++) {
+        // 跨步階段：前腿大幅前、後腿大幅後（4-bar 讓腿伸得很遠）
+        this.setLeg('LF', 50); this.setLeg('RF', 50);
+        this.setLeg('LB', -50); this.setLeg('RB', -50);
+        await this.sleep(320);
+        // 收腿階段：反向，4 腿往身體中心收
+        this.setLeg('LF', -25); this.setLeg('RF', -25);
+        this.setLeg('LB', 25); this.setLeg('RB', 25);
+        await this.sleep(320);
       }
-      this.bittle.rotation.z = 0;
-      this.bittle.position.x = 0;
       this.resetLegs();
     },
 
     walkReverse: async function () {
-      // 倒退：搖晃方向相反、加負向 x 位移示意倒退
-      for (let i = 0; i < 6; i++) {
-        this.bittle.rotation.z = 0.22;
-        this.bittle.position.x = -8;
-        this.setLeg('LF', -12); this.setLeg('LB', -12);
-        this.setLeg('RF', 6); this.setLeg('RB', 6);
-        await this.sleep(280);
-        this.bittle.rotation.z = -0.22;
-        this.bittle.position.x = 8;
-        this.setLeg('LF', 6); this.setLeg('LB', 6);
-        this.setLeg('RF', -12); this.setLeg('RB', -12);
-        await this.sleep(280);
+      // 倒退 bound：前後相反方向
+      for (let i = 0; i < 5; i++) {
+        this.setLeg('LF', -50); this.setLeg('RF', -50);
+        this.setLeg('LB', 50); this.setLeg('RB', 50);
+        await this.sleep(320);
+        this.setLeg('LF', 25); this.setLeg('RF', 25);
+        this.setLeg('LB', -25); this.setLeg('RB', -25);
+        await this.sleep(320);
       }
-      this.bittle.rotation.z = 0;
-      this.bittle.position.x = 0;
       this.resetLegs();
     },
 

@@ -90,28 +90,29 @@ class BittleSimulator {
   // walk = 左右擺動 / pushUp = 整體上下，已調整以接近實機視覺（Round 13）
   animations = {
     walk: async function () {
-      // 實機 4-bar 機構：左右大幅擺動為主（v0.4.4 加大幅度）
-      for (let i = 0; i < 6; i++) {
-        // 重心向右
-        this.setLeg('LF', 35); this.setLeg('LB', 35);
-        this.setLeg('RF', -15); this.setLeg('RB', -15);
-        await this.sleep(280);
-        // 重心向左
-        this.setLeg('LF', -15); this.setLeg('LB', -15);
-        this.setLeg('RF', 35); this.setLeg('RB', 35);
-        await this.sleep(280);
+      // v0.4.5 實機影片觀察校正：bound 步態
+      // 前腿大幅前 + 後腿大幅後（拉長身體），不是左右搖晃
+      for (let i = 0; i < 5; i++) {
+        // 跨步：前腿前伸、後腿後蹬
+        this.setLeg('LF', 50); this.setLeg('RF', 50);
+        this.setLeg('LB', -50); this.setLeg('RB', -50);
+        await this.sleep(320);
+        // 收腿：反向
+        this.setLeg('LF', -25); this.setLeg('RF', -25);
+        this.setLeg('LB', 25); this.setLeg('RB', 25);
+        await this.sleep(320);
       }
       this.resetLegs();
     },
 
     walkReverse: async function () {
-      for (let i = 0; i < 6; i++) {
-        this.setLeg('LF', -35); this.setLeg('LB', -35);
-        this.setLeg('RF', 15); this.setLeg('RB', 15);
-        await this.sleep(280);
-        this.setLeg('LF', 15); this.setLeg('LB', 15);
-        this.setLeg('RF', -35); this.setLeg('RB', -35);
-        await this.sleep(280);
+      for (let i = 0; i < 5; i++) {
+        this.setLeg('LF', -50); this.setLeg('RF', -50);
+        this.setLeg('LB', 50); this.setLeg('RB', 50);
+        await this.sleep(320);
+        this.setLeg('LF', 25); this.setLeg('RF', 25);
+        this.setLeg('LB', -25); this.setLeg('RB', -25);
+        await this.sleep(320);
       }
       this.resetLegs();
     },
