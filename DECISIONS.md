@@ -13,6 +13,23 @@ related:
 > **ADR 是什麼**：在做關鍵架構決策時記下「為什麼選 A 不選 B」，避免未來回頭問「當初為什麼這樣？」
 > 每個 ADR 是不可變的（immutable），如要改變決定就寫新 ADR 並標註 Supersedes。
 
+## 📑 ADR 速查索引
+
+| ADR | 決策 | 結論 |
+|---|---|---|
+| 001 | 積木引擎選型 | **Blockly v10**（vs Scratch Blocks / Snap!）|
+| 002 | 部署方式 | **純前端 + GitHub Pages**（vs npm/framework）|
+| 003 | 模擬器技術 | **MVP 用 SVG，v0.4+ 加 Three.js 3D**（vs Canvas） |
+| 004 | 實機通訊 | **Web Serial API**（vs WebUSB / 後端中介）|
+| 005 | Code 生成目標 | **JavaScript async/await**（vs Python / 純 ASCII） |
+| 006 | 多機器人架構 | **IRobot 介面抽象 + 每 robot 一資料夾** |
+| 007 | 授權選擇 | **MIT License + 真名「許士彥」**（vs GPL / 閉源）|
+| 008 | v0.2 積木擴充 | **Metadata-driven 生成**（vs 手寫 50 個 boilerplate）|
+| 009 | 3D mesh 來源 | **Procedural Three.js geometry**（vs 載入真實 STL）|
+| 010 ⭐ | 產品命名 | **DogLab Coding**（避免 Petoi Bittle 商標爭議）|
+
+未來 ADR 從 011 起編號。
+
 ---
 
 ## ADR-001：選 Blockly 作為積木引擎

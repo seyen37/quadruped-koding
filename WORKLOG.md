@@ -11,6 +11,36 @@ related:
 
 > **每次完成一段工作後 append 一個 Round 條目**。包含：日期、變更摘要、commit message 建議、下一步。
 
+## 📑 Round 速查索引
+
+| Round | 主題 | 版本 |
+|---|---|---|
+| 22 ⭐ | 改名 DogLab Coding + repo rename to quadruped-koding | v0.4.11 |
+| 21 | 7 個視覺修正 + 命名議題提出 | v0.4.11 |
+| 20 ⭐ | 腿部加「ㄑ字形」站姿 + 4-bar 彈簧連動 | v0.4.10 |
+| 19 | 美觀微調（頭/腳位置、加脖子）| v0.4.9 |
+| 18 | 預設「當程式開始」hat block | v0.4.8 |
+| 17 ⭐ | 腿擺動 axis 從 X 改 Z（修正方向錯誤）| v0.4.7 |
+| 16 | 腿部結構重設計（兩段關節 + 彈簧 + 4-bar）| v0.4.6 |
+| 15 | walk 改成 bound 步態（依實機影片校正）| v0.4.5 |
+| 14 | walk/pushUp 加大幅度 + 規劃 v0.6 IR 遙控 | v0.4.4 |
+| 13 | walk/pushUp 修正以符合實機 4-bar 機構 | v0.4.3 |
+| 12 | 加 3D 主題切換（暗黑/灰調/明亮） | v0.4.2 |
+| 11 | 3D 配色升級（提高對比度） | v0.4.1 |
+| 10 ⭐ | Three.js 3D 模擬器一氣呵成（v0.4 提前實作）| v0.4.0 |
+| 9 ⭐ | v0.2 動作積木擴充：6 → 51 個（metadata-driven） | v0.2.0 |
+| 8 ⭐ | GitHub Pages 正式上線 🎉 | — |
+| 7 | 智財保護強化（LICENSE 真名 + 備份 Private）| — |
+| 6 | 雙 GitHub 帳號 SSH 設置 + 上傳成功 | — |
+| 5 | dual GitHub setup 指引文件 | — |
+| 4 | UI 修復 + 多機器人架構 + WORKLOG/DECISIONS | — |
+| 3 | Blockly generator 修復 + hat block 加入 | — |
+| 2 | SVG 渲染修復 | — |
+| 1 ⭐ | MVP 初版建置（12 個檔案） | v0.1.0 |
+| 0 | 需求接收與規劃 | — |
+
+⭐ = 重大里程碑
+
 ---
 
 ## ⭐ Round 22 — 2026-04-28 — 改名為 DogLab Coding + repo rename to quadruped-koding
