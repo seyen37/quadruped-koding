@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Petoi Bittle Koding</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Blockly via CDN — 鎖 v10 避免 v11 breaking change -->
+  <script src="https://unpkg.com/blockly@10/blockly.min.js"></script>
+  <!-- ⭐ JavaScript generator 必載（少了這行 workspaceToCode 會回傳空字串）-->
+  <script src="https://unpkg.com/blockly@10/javascript_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@10/msg/zh-hant.js"></script>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="logo">🐕</span>
+      <span class="title">Petoi Bittle Koding</span>
+      <span class="version">v0.1.0 MVP</span>
+    </div>
+    <div class="actions">
+      <button id="btn-mode" class="btn-secondary">模式：🖥️ 模擬</button>
+      <button id="btn-connect" class="btn-secondary">🔌 連接 Bittle</button>
+      <button id="btn-stop" class="btn-secondary">⏹ 停止</button>
+      <button id="btn-run" class="btn-primary">▶ 執行</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 中：Blockly workspace -->
+    <section id="blocklyDiv" class="workspace"></section>
+
+    <!-- 右：模擬器 + Log -->
+    <aside class="right-panel">
+      <div class="panel-section">
+        <h3>模擬器</h3>
+        <div id="simulator-area">
+          <!-- Bittle SVG inline (避免 file:// 的 fetch CORS 問題) -->
+          <svg id="bittle-svg" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+            <!-- 背景地面 -->
+            <line x1="20" y1="240" x2="380" y2="240" stroke="#444" stroke-width="2" stroke-dasharray="4,4" />
+
+            <!-- 身體 -->
+            <rect id="body" x="100" y="110" width="200" height="60" rx="12" fill="#2a3f5f" stroke="#5fa9e8" stroke-width="2" />
+
+            <!-- 頭部（外層 group 定位、內層 head 可旋轉，旋轉中心 (0,0) 在頭部圓心） -->
+            <g transform="translate(310, 130)">
+              <g id="head">
+                <circle cx="0" cy="0" r="30" fill="#2a3f5f" stroke="#5fa9e8" stroke-width="2" />
+                <circle cx="-8" cy="-5" r="6" fill="#5fa9e8" />
+                <circle cx="8" cy="-5" r="6" fill="#5fa9e8" />
+                <line x1="-12" y1="8" x2="12" y2="8" stroke="#5fa9e8" stroke-width="2" />
+              </g>
+            </g>
+
+            <!-- 4 條腿（外層 group 定位、內層 leg-XX 可旋轉，旋轉中心 (0,0) 自然在腿頂） -->
+            <g transform="translate(125, 170)">
+              <g id="leg-LF">
+                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
+                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
+              </g>
+            </g>
+            <g transform="translate(165, 170)">
+              <g id="leg-RF">
+                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
+                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
+              </g>
+            </g>
+            <g transform="translate(235, 170)">
+              <g id="leg-LB">
+                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
+                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
+              </g>
+            </g>
+            <g transform="translate(275, 170)">
+              <g id="leg-RB">
+                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
+                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
+              </g>
+            </g>
+
+            <!-- 機型標示 -->
+            <text x="200" y="265" text-anchor="middle" fill="#888" font-size="11" font-family="monospace">Bittle (NyBoard V1)</text>
+          </svg>
+        </div>
+        <div id="status-line">狀態：等待指令</div>
+      </div>
+
+      <div class="panel-section">
+        <h3>執行記錄</h3>
+        <div id="log"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 自訂 JS（依序載入：先設定，再積木，再生成器，再模組，最後整合）-->
+  <script src="js/blockly-config.js"></script>
+  <script src="js/bittle-blocks.js"></script>
+  <script src="js/bittle-generators.js"></script>
+  <script src="js/simulator-svg.js"></script>
+  <script src="js/serial.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

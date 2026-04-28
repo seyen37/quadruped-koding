@@ -1,0 +1,44 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 編輯器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 暫存
+*.log
+*.tmp
+.cache/
+
+# Node（如未來引入 build pipeline 才需要）
+node_modules/
+package-lock.json
+yarn.lock
+dist/
+build/
+
+# Python（如未來引入 server 工具）
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Sensitive
+.env
+.env.local
+secrets/
+*.key
+*.pem
+
+# 大型測試檔（避免上傳）
+*.zip
+*.tar.gz
+test-data/
+
+# Cowork session 暫存（如有）
+.cowork-temp/
