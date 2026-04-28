@@ -54,8 +54,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // 注入 Blockly
   BittleApp.workspace = Blockly.inject('blocklyDiv', BittleApp.blocklyOptions);
+
+  // v0.4.8：預設載入「🟢 當程式開始」hat block（讓新使用者直接看到入口）
+  try {
+    const defaultXml = '<xml xmlns="https://developers.google.com/blockly/xml"><block type="bittle_start" x="80" y="60"></block></xml>';
+    const xmlDom = Blockly.utils.xml.textToDom(defaultXml);
+    Blockly.Xml.domToWorkspace(xmlDom, BittleApp.workspace);
+  } catch (e) {
+    console.warn('預設 workspace 載入失敗:', e);
+  }
+
   BittleApp.log('Petoi Bittle Koding v0.1.0 已就緒', 'success');
-  BittleApp.log('提示：拖積木到中央區域，按 ▶ 執行查看效果');
+  BittleApp.log('提示：把動作積木接到「🟢 當程式開始」下面，按 ▶ 執行查看效果');
 
   // === 綁定按鈕 ===
 

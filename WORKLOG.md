@@ -13,6 +13,30 @@ related:
 
 ---
 
+## Round 18 — 2026-04-28 — v0.4.8 預設載入「當程式開始」hat block + walk 問題待釐清
+
+### 用戶反饋
+1. v0.4.7 axis 修正後 walk 動畫**還是同樣的問題**（待具體截圖確認）
+2. **「當程式開始」設為預設出現** — 完成
+
+### 變更
+- `js/main.js`：Blockly 注入後立即用 `Blockly.Xml.domToWorkspace` 載入一個 `bittle_start` block
+- 提示文字更新：「把動作積木接到『🟢 當程式開始』下面」
+
+### Walk 問題待釐清
+詢問用戶：
+- v0.4.7 是否實際 push 上 GitHub？（如沒 push，看的還是舊版）
+- 強制 Ctrl+F5 重整了嗎？
+- 目前 walk 視覺截圖
+- F12 Console 有錯嗎？
+
+### Commit message 建議
+```
+feat(ui): preload bittle_start hat block on workspace init for new users
+```
+
+---
+
 ## Round 17 — 2026-04-28 — v0.4.7 ★ 重要修正：腿擺動 axis 從 X 改 Z（修正「方向錯誤」）
 
 ### 用戶反饋
