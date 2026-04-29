@@ -15,6 +15,7 @@ related:
 
 | Round | 主題 | 版本 |
 |---|---|---|
+| 25 | 移除 2D SVG simulator + 預設 3D + 加尺寸切換（普通 ⇄ 放大）| v0.5.1 |
 | 24 ⭐ | P 任務：BittleApp → DogLabApp namespace 重構 + F 任務：5 個事件積木 + events dispatcher + 手動觸發 UI | v0.5.0 |
 | 23 | 運維：清理 git remote pushurl 統一為純 alias 風格 + 公司電腦 SSH 指引 + personal-playbook 雙 backup setup | — |
 | 22 ⭐ | 改名 DogLab Coding + repo rename to quadruped-koding | v0.4.11 |
@@ -42,6 +43,78 @@ related:
 | 0 | 需求接收與規劃 | — |
 
 ⭐ = 重大里程碑
+
+---
+
+## Round 25 — 2026-04-29 — v0.5.1 移除 2D simulator + 預設 3D + 尺寸切換
+
+### 用戶需求
+> 「請幫我把模擬器，原本的 2D 取消，改成預設就是 3D 模擬，然後可以用切換的方式調整大小，讓模擬器的畫面變得更大一些」
+
+### 設計決定（對應 ADR-013）
+- **移除 2D**：3D 已成熟（v0.4.10 後），2D SVG 雙軌維護成本不符比例
+- **保留 simulator-svg.js 檔案**（不從 index.html 載入），保留歷史
+- **尺寸切換用 toggle**（不是多段 slider），普通 ⇄ 放大兩態最直觀
+
+### 實作摘要
+
+**index.html**
+- 拔掉整段 `<svg id="bittle-svg">` 與 `#simulator-area` 容器
+- 拔掉 `<script src="js/simulator-svg.js">` 載入
+- 3D `#simulator-3d-area` 移除 `style="display: none"`，預設顯示
+- 按鈕 `btn-sim-mode`（🎬 切到 3D）→ `btn-sim-size`（🔍 放大）
+- 版本 v0.5.0 → v0.5.1
+
+**js/main.js**
+- `runtime.simMode` 欄位刪除（不再需要 2D/3D 判斷）
+- `runtime.send()` 直走 `simulator3D.executeSkill()`；3D 還沒 ready 時 log warn
+- 移除 `DogLabApp.initSimulator()` 呼叫（2D 初始化）
+- `btn-sim-mode` handler 整段刪掉，改綁 `btn-sim-size`：
+  ```javascript
+  const expanded = rightPanel.classList.toggle('expanded');
+  btn.textContent = expanded ? '🔍 縮小' : '🔍 放大';
+  setTimeout(() => DogLabApp.simulator3D.resize(), 320); // 等 CSS transition
+  ```
+
+**css/style.css**
+- 右側面板 `width: 380px` → `500px`（普通模式就比之前大）
+- `#simulator-3d-area` `min-height: 280px` → `380px` + `flex: 1`
+- 新增 `.right-panel.expanded` 規則：寬 760px、模擬器 flex:4、log flex:1、3D min-height 560px
+- 加 `transition: width / min-height 0.3s ease`
+- 清掉 dead selectors：`#simulator-area`、`#bittle-svg`、`#bittle-svg g[id^="leg-"]`、`#bittle-svg #head`
+
+### 影響檔案
+| 檔案 | 改動 |
+|---|---|
+| `index.html` | 拔 SVG block + simulator-svg.js 載入；改按鈕 id；版本 v0.5.1 |
+| `js/main.js` | runtime 簡化；btn-sim-size handler；移除 initSimulator 呼叫 |
+| `css/style.css` | 加寬面板 + expanded class + 清 dead 2D rules |
+| `js/simulator-svg.js` | 不動（孤兒檔，保留供歷史追溯）|
+| `DECISIONS.md` | ADR-013 |
+| `WORKLOG.md` | 本 Round |
+
+### 驗證（grep 結果）
+- `btn-sim-mode` / `simMode` / `initSimulator` 在執行路徑中歸零 ✓
+- `bittle-svg` / `simulator-area` 只剩 `simulator-svg.js`（孤兒檔）內 ✓
+- `btn-sim-size` / `expanded` 三個檔案串起來 ✓
+
+### Commit message 建議
+```
+feat(v0.5.1): drop 2D SVG simulator, default to 3D, add size toggle
+```
+
+### 上線驗證 checklist
+1. F12 Console → `DogLabApp.runtime.simMode` 應為 `undefined`（已移除）
+2. 預設打開即見 3D 模擬器，比之前明顯大
+3. 按「🔍 放大」→ 右側面板展開到 760px、模擬器占 80% 高、按鈕變「🔍 縮小」
+4. 再按一次 → 縮回；transition 流暢；canvas 不變形
+5. 拖 walk 積木執行 → 動作正常、無 console error
+
+### 下一步
+1. push（git pa）
+2. Pages 重整 1-3 分鐘
+3. 上線驗證
+4. 若 OK 進下一輪（候選：L. v0.6 IR 21 鍵 / G. microbit / H. 教學任務卡）
 
 ---
 

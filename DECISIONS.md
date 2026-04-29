@@ -29,8 +29,9 @@ related:
 | 010 ⭐ | 產品命名 | **DogLab Coding**（避免 Petoi Bittle 商標爭議）|
 | 011 | 內部 namespace 重構 | `BittleApp` → **`DogLabApp`**（清 ADR-010 technical debt） |
 | 012 | 事件積木觸發模式 | **手動觸發**（UI 按鈕 + console API），polling 留 v0.7 |
+| 013 | 移除 2D SVG simulator | **3D 為唯一模擬器**（保留檔案不刪），加尺寸切換 toggle |
 
-未來 ADR 從 013 起編號。
+未來 ADR 從 014 起編號。
 
 ---
 
@@ -578,6 +579,76 @@ v0.5.0 採 **方案 A（手動觸發）**。模擬模式 + 實機模式都用 5 
 - ✅ 與既有 Run / Stop / Mode 機制相容
 - ⚠️ 實機 polling 模式留 v0.7 處理
 - ⚠️ 事件 handler 跑完不結束（持續存在），用戶要按 Stop 才停
+
+---
+
+## ADR-013：移除 2D SVG simulator，3D 為唯一模擬器
+
+**Status**: Accepted（2026-04-29）
+**Context**：v0.4 之後 3D Three.js simulator 已成熟（procedural mesh + 4-bar 連動 + 站姿正確）。原本 ADR-003 的「MVP 用 SVG，v0.4+ 加 3D」雙軌策略，到 v0.5 時 2D 變成累贅。
+
+問題清單：
+- 2D SVG 動畫只是「示意」，不能反映真實機構（4-bar / 彈簧）
+- 學生看完 3D 之後幾乎不再切回 2D
+- 雙軌維護增加心智負擔（main.js 的 `simMode` 分支、index.html 兩個容器、CSS 兩套規則）
+- v0.5.0 namespace 重構時 2D 規則仍要 follow
+
+用戶在 v0.5.1 明確要求：「2D 取消、預設 3D、加尺寸切換讓畫面更大」。
+
+### Options
+
+| 方案 | 程式碼 | UI 切換 | 維護成本 |
+|---|---|---|---|
+| A. 維持雙軌（現狀）| 兩套 simulator + simMode 分支 | 2D / 3D 切換鈕 | 高 |
+| **B. 移除 2D，保留檔案** | 拔 index.html 載入；simulator-svg.js 留檔 | 切換鈕改成「尺寸切換」 | 低 |
+| C. 物理刪除 2D 檔案 | 連 simulator-svg.js / animationLibrary 一起刪 | 同 B | 最低（但難復原）|
+
+### Decision
+
+採 **方案 B**。
+
+### Rationale
+
+1. **3D 已涵蓋 2D 所有用途**：站姿、走路、頭部旋轉、擺尾、跌倒，3D 都有更真實的呈現
+2. **保留檔案利於歷史回溯**：未來若要做「教學前後對照」、「老瀏覽器降級顯示」、「印刷簡報用靜態圖」，2D SVG 仍是低成本方案
+3. **UI 槽位再利用**：原本「2D / 3D 切換」按鈕位置改成「尺寸切換」，沒有新增 UI 元素就獲得放大功能
+4. **Supersedes ADR-003 部分**：ADR-003 的「v0.4+ 加 3D」實現後，雙軌變成歷史包袱，這次正式收尾
+
+### Implementation
+
+**index.html**
+- 整段 `<svg id="bittle-svg">` 與 `#simulator-area` 容器移除
+- `<script src="js/simulator-svg.js">` 載入移除
+- `#simulator-3d-area` 移除 `display: none`
+- 按鈕 `id="btn-sim-mode"` → `id="btn-sim-size"`、文字「🎬 切到 3D」→「🔍 放大」
+
+**js/main.js**
+```javascript
+// 移除：simMode 欄位、initSimulator 呼叫、btn-sim-mode handler
+// send() 簡化：if (DogLabApp.simulator3D) return DogLabApp.simulator3D.executeSkill(asciiCommand)
+// 新增 btn-sim-size handler：toggle '.expanded' class + 320ms 後 resize
+```
+
+**css/style.css**
+- `.right-panel` width 380 → 500px（加 transition）
+- `#simulator-3d-area` min-height 280 → 380px、加 flex:1
+- 新增 `.right-panel.expanded`：寬 760px、模擬器 flex:4、log flex:1、3D min-height 560px
+- 清掉 dead selectors：`#simulator-area`、`#bittle-svg`、`#bittle-svg g[id^="leg-"]`、`#bittle-svg #head`
+
+**js/simulator-svg.js**：保留檔案不動（孤兒檔，沒有人載入）
+
+### Consequences
+
+- ✅ 程式碼路徑簡化（移除 simMode 分支）
+- ✅ 預設模擬器畫面變大（500px 寬 + 380px 高）
+- ✅ 放大模式可進一步擴展到 760px 寬 + 560px 高
+- ✅ Three.js canvas 在尺寸切換後自動 resize（已有 bindResize 機制）
+- ⚠️ 2D 動畫庫（`animationLibrary` in simulator-svg.js）暫時無法觸發；未來若要復用要重新接線
+- ⚠️ `bittle-skills-data.js` 的每個 skill 仍帶 `anim` 欄位（給 SVG 用）但不再被讀取——技術債，未來清理時可考慮移除欄位
+
+### Supersedes
+
+ADR-003 的「MVP 用 SVG，v0.4+ 加 Three.js 3D」中「保留 SVG 雙軌」的部分。3D 仍維持 procedural mesh（ADR-009）。
 
 ---
 
