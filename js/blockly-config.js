@@ -3,7 +3,7 @@
    v0.2：toolbox 動作分類拆成 步態 / 姿勢 / 表演動作 三個 sub-category
    ========================================================== */
 
-window.BittleApp = window.BittleApp || {};
+window.DogLabApp = window.DogLabApp || {};
 
 // 由 BITTLE_SKILLS metadata 自動產生 category XML 片段
 function buildSkillCategoryXml(categoryName, skills, colour) {
@@ -12,12 +12,12 @@ function buildSkillCategoryXml(categoryName, skills, colour) {
 }
 
 // ⚠️ Toolbox XML 在 BITTLE_SKILLS 載入後才能組裝
-// 所以 BittleApp.toolboxXml 用 getter 延遲求值
-Object.defineProperty(BittleApp, 'toolboxXml', {
+// 所以 DogLabApp.toolboxXml 用 getter 延遲求值
+Object.defineProperty(DogLabApp, 'toolboxXml', {
   get: function () {
-    const gait    = BittleApp.SKILLS_BY_CATEGORY?.gait    || [];
-    const posture = BittleApp.SKILLS_BY_CATEGORY?.posture || [];
-    const show    = BittleApp.SKILLS_BY_CATEGORY?.show    || [];
+    const gait    = DogLabApp.SKILLS_BY_CATEGORY?.gait    || [];
+    const posture = DogLabApp.SKILLS_BY_CATEGORY?.posture || [];
+    const show    = DogLabApp.SKILLS_BY_CATEGORY?.show    || [];
 
     return `
 <xml id="toolbox" style="display: none">
@@ -25,6 +25,18 @@ Object.defineProperty(BittleApp, 'toolboxXml', {
   <category name="🟢 開始與重置" colour="45">
     <block type="bittle_start"></block>
     <block type="bittle_reset"></block>
+  </category>
+
+  <category name="⚡ 事件感測" colour="50">
+    <block type="bittle_when_lifted"></block>
+    <block type="bittle_when_dropped"></block>
+    <block type="bittle_when_touch_head"></block>
+    <block type="bittle_when_distance_lt">
+      <field name="CM">20</field>
+    </block>
+    <block type="bittle_when_voltage_lt">
+      <field name="VOLTAGE">7.0</field>
+    </block>
   </category>
 
 ${buildSkillCategoryXml(`🚶 步態（${gait.length} 個）`,    gait,    290)}
@@ -99,8 +111,8 @@ ${buildSkillCategoryXml(`🎭 表演動作（${show.length} 個）`, show,    32
   },
 });
 
-BittleApp.blocklyOptions = {
-  get toolbox() { return BittleApp.toolboxXml; },
+DogLabApp.blocklyOptions = {
+  get toolbox() { return DogLabApp.toolboxXml; },
   trashcan: true,
   scrollbars: true,
   sounds: false,

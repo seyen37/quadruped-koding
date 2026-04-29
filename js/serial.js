@@ -3,7 +3,7 @@
    需 Chrome 89+ 或 Edge 89+。Firefox / Safari 不支援。
    ========================================================== */
 
-window.BittleApp = window.BittleApp || {};
+window.DogLabApp = window.DogLabApp || {};
 
 class BittleSerial {
   constructor() {
@@ -41,20 +41,20 @@ class BittleSerial {
     this.readLoopAbort = false;
     this._startReadLoop();
 
-    BittleApp.log('已連線到 Bittle (115200 baud)', 'success');
+    DogLabApp.log('已連線到 Bittle (115200 baud)', 'success');
     return true;
   }
 
   async send(asciiCommand) {
     if (!this.writer) {
-      BittleApp.log('未連線，自動切回模擬模式執行', 'warn');
+      DogLabApp.log('未連線，自動切回模擬模式執行', 'warn');
       // 回退到模擬器
-      if (BittleApp.simulator) await BittleApp.simulator.executeSkill(asciiCommand);
+      if (DogLabApp.simulator) await DogLabApp.simulator.executeSkill(asciiCommand);
       return;
     }
     const data = new TextEncoder().encode(asciiCommand + '\n');
     await this.writer.write(data);
-    BittleApp.log('▶ 送出: ' + asciiCommand);
+    DogLabApp.log('▶ 送出: ' + asciiCommand);
   }
 
   async _startReadLoop() {
@@ -64,12 +64,12 @@ class BittleSerial {
         if (done) break;
         if (value) {
           const text = new TextDecoder().decode(value);
-          if (text.trim()) BittleApp.log('◀ 回應: ' + text.trim());
+          if (text.trim()) DogLabApp.log('◀ 回應: ' + text.trim());
         }
       }
     } catch (e) {
       if (!this.readLoopAbort) {
-        BittleApp.log('讀取中斷: ' + e.message, 'error');
+        DogLabApp.log('讀取中斷: ' + e.message, 'error');
       }
     }
   }
@@ -89,11 +89,11 @@ class BittleSerial {
       }
       await this.port.close();
     } catch (e) {
-      BittleApp.log('斷線錯誤: ' + e.message, 'error');
+      DogLabApp.log('斷線錯誤: ' + e.message, 'error');
     }
     this.port = null;
-    BittleApp.log('已斷線', 'warn');
+    DogLabApp.log('已斷線', 'warn');
   }
 }
 
-BittleApp.serial = new BittleSerial();
+DogLabApp.serial = new BittleSerial();

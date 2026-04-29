@@ -20,6 +20,50 @@ Blockly.Blocks['bittle_start'] = {
   },
 };
 
+// ============== 事件積木（hat block + statement input）v0.5.0 ==============
+
+const EVENT_BLOCKS = [
+  { id: 'when_lifted',     emoji: '🤚', name: '當被舉起時',     event: 'lifted' },
+  { id: 'when_dropped',    emoji: '💥', name: '當跌落時',       event: 'dropped' },
+  { id: 'when_touch_head', emoji: '👆', name: '當頭被觸碰時',   event: 'touch_head' },
+];
+
+EVENT_BLOCKS.forEach((evt) => {
+  Blockly.Blocks['bittle_' + evt.id] = {
+    init: function () {
+      this.appendDummyInput().appendField(evt.emoji + ' ' + evt.name);
+      this.appendStatementInput('DO').setCheck(null);
+      this.setColour(50); // 黃綠色，仿 Scratch 事件積木
+      this.setTooltip(`綁定 handler：當機器人「${evt.name.slice(1, -1)}」時，執行內部積木`);
+    },
+  };
+});
+
+// 帶數字參數的事件積木（distance / voltage）
+Blockly.Blocks['bittle_when_distance_lt'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField('📏 當前方距離小於')
+      .appendField(new Blockly.FieldNumber(20, 1, 200), 'CM')
+      .appendField('公分時');
+    this.appendStatementInput('DO').setCheck(null);
+    this.setColour(50);
+    this.setTooltip('超音波感測器偵測到距離小於設定值時觸發（需接超音波模組或在模擬器手動觸發）');
+  },
+};
+
+Blockly.Blocks['bittle_when_voltage_lt'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField('🔋 當電量低於')
+      .appendField(new Blockly.FieldNumber(7.0, 6.0, 9.0, 0.1), 'VOLTAGE')
+      .appendField('V 時');
+    this.appendStatementInput('DO').setCheck(null);
+    this.setColour(50);
+    this.setTooltip('讀電池 ADC7 低於設定值時觸發');
+  },
+};
+
 Blockly.Blocks['bittle_reset'] = {
   init: function () {
     this.appendDummyInput().appendField('🔄 重置 Bittle 到站穩姿勢');
@@ -118,7 +162,7 @@ const SKILL_COLOUR = {
   show: 320,    // 粉紫
 };
 
-BittleApp.BITTLE_SKILLS.forEach((skill) => {
+DogLabApp.BITTLE_SKILLS.forEach((skill) => {
   Blockly.Blocks['bittle_' + skill.id] = {
     init: function () {
       this.appendDummyInput().appendField(skill.emoji + ' ' + skill.name);
@@ -131,4 +175,4 @@ BittleApp.BITTLE_SKILLS.forEach((skill) => {
   };
 });
 
-console.log(`[BittleApp] Registered ${BittleApp.BITTLE_SKILLS.length} action blocks (gait/posture/show)`);
+console.log(`[DogLabApp] Registered ${DogLabApp.BITTLE_SKILLS.length} action blocks (gait/posture/show)`);

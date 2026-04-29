@@ -26,7 +26,7 @@
     <div class="brand">
       <span class="logo">🐕‍🦺</span>
       <span class="title">DogLab Coding</span>
-      <span class="version">v0.4.11</span>
+      <span class="version">v0.5.0</span>
     </div>
     <div class="actions">
       <button id="btn-mode" class="btn-secondary">模式：🖥️ 模擬</button>
@@ -100,6 +100,15 @@
         <!-- 3D Three.js 模擬器（預設隱藏，按鈕切換）-->
         <div id="simulator-3d-area" style="display: none;"></div>
         <div id="status-line">狀態：等待指令</div>
+        <!-- v0.5.0 事件觸發列（模擬模式手動觸發感測事件）-->
+        <div class="event-trigger-bar">
+          <span class="event-label">⚡ 模擬事件：</span>
+          <button class="btn-event" data-event="lifted" title="模擬：被舉起">🤚 被舉起</button>
+          <button class="btn-event" data-event="dropped" title="模擬：跌落">💥 跌落</button>
+          <button class="btn-event" data-event="touch_head" title="模擬：頭被觸碰">👆 觸頭</button>
+          <button class="btn-event" data-event="distance_lt" data-data="10" title="模擬：前方 10 cm 內有東西">📏 近距</button>
+          <button class="btn-event" data-event="voltage_lt" data-data="6.5" title="模擬：電量低 6.5V">🔋 低電</button>
+        </div>
       </div>
 
       <div class="panel-section">

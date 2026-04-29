@@ -15,7 +15,7 @@
      - v0.2 計畫把 Bittle 包成符合 IRobot 的標準實作
    ========================================================== */
 
-window.BittleApp = window.BittleApp || {};
+window.DogLabApp = window.DogLabApp || {};
 
 /**
  * 機器人介面 — 所有機器人實作都要 conform to this
@@ -146,27 +146,27 @@ class IRobotSimulator {
 }
 
 // 導出供未來 robot 實作 extend / 註冊用
-BittleApp.IRobot = IRobot;
-BittleApp.IConnector = IConnector;
-BittleApp.IRobotSimulator = IRobotSimulator;
+DogLabApp.IRobot = IRobot;
+DogLabApp.IConnector = IConnector;
+DogLabApp.IRobotSimulator = IRobotSimulator;
 
 // 機器人註冊表（v0.2+ 會用）
-BittleApp.robots = BittleApp.robots || {};
+DogLabApp.robots = DogLabApp.robots || {};
 
 /**
  * 註冊一個機器人實作
  * @param {IRobot} robotInstance
  */
-BittleApp.registerRobot = function (robotInstance) {
+DogLabApp.registerRobot = function (robotInstance) {
   if (!robotInstance.id) throw new Error('Robot must have an id');
-  BittleApp.robots[robotInstance.id] = robotInstance;
-  console.log(`[BittleApp] Registered robot: ${robotInstance.id} (${robotInstance.displayName})`);
+  DogLabApp.robots[robotInstance.id] = robotInstance;
+  console.log(`[DogLabApp] Registered robot: ${robotInstance.id} (${robotInstance.displayName})`);
 };
 
 /**
  * 取得目前活躍的機器人
  * v0.1：固定回傳 Bittle（向下相容），v0.2+ 會根據用戶選擇切換
  */
-BittleApp.getActiveRobot = function () {
-  return BittleApp.robots[BittleApp.activeRobotId || 'bittle'] || null;
+DogLabApp.getActiveRobot = function () {
+  return DogLabApp.robots[DogLabApp.activeRobotId || 'bittle'] || null;
 };

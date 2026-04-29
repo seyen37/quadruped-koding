@@ -4,7 +4,7 @@
    未實作的指令會跑 generic 'shake' fallback
    ========================================================== */
 
-window.BittleApp = window.BittleApp || {};
+window.DogLabApp = window.DogLabApp || {};
 
 class BittleSimulator {
   constructor(svgElementId) {
@@ -21,8 +21,8 @@ class BittleSimulator {
 
     // 建立「ASCII → animation」對照表（從 BITTLE_SKILLS metadata 生成）
     this.skillAnimMap = {};
-    if (BittleApp.BITTLE_SKILLS) {
-      BittleApp.BITTLE_SKILLS.forEach((s) => {
+    if (DogLabApp.BITTLE_SKILLS) {
+      DogLabApp.BITTLE_SKILLS.forEach((s) => {
         this.skillAnimMap[s.ascii] = s.anim;
       });
     }
@@ -243,8 +243,8 @@ class BittleSimulator {
   }
 }
 
-BittleApp.simulator = null;
-BittleApp.initSimulator = function () {
-  BittleApp.simulator = new BittleSimulator('bittle-svg');
-  BittleApp.simulator.resetLegs();
+DogLabApp.simulator = null;
+DogLabApp.initSimulator = function () {
+  DogLabApp.simulator = new BittleSimulator('bittle-svg');
+  DogLabApp.simulator.resetLegs();
 };

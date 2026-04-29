@@ -7,7 +7,7 @@
      - Petoi STEP 內部資料授權不明、不可公開
      - Procedural mesh 對教育用途已足夠
 
-   架構：ES module（用 importmap）；init 完掛載到 window.BittleApp.simulator3D
+   架構：ES module（用 importmap）；init 完掛載到 window.DogLabApp.simulator3D
    ========================================================== */
 
 import * as THREE from 'three';
@@ -48,8 +48,8 @@ class BittleSimulator3D {
 
     // 對照 ASCII → animation（與 SVG simulator 同 metadata 來源）
     this.skillAnimMap = {};
-    if (window.BittleApp && window.BittleApp.BITTLE_SKILLS) {
-      window.BittleApp.BITTLE_SKILLS.forEach((s) => {
+    if (window.DogLabApp && window.DogLabApp.BITTLE_SKILLS) {
+      window.DogLabApp.BITTLE_SKILLS.forEach((s) => {
         this.skillAnimMap[s.ascii] = s.anim;
       });
     }
@@ -667,21 +667,21 @@ class BittleSimulator3D {
 }
 
 // 掛載到 global
-window.BittleApp = window.BittleApp || {};
-window.BittleApp.BittleSimulator3D = BittleSimulator3D;
+window.DogLabApp = window.DogLabApp || {};
+window.DogLabApp.BittleSimulator3D = BittleSimulator3D;
 
 // Auto init when 3D container exists & DOM ready
 function tryInit3D() {
   const container = document.getElementById('simulator-3d-area');
   if (!container) {
-    console.warn('[BittleApp] 3D container not found, skipping 3D init');
+    console.warn('[DogLabApp] 3D container not found, skipping 3D init');
     return;
   }
   try {
-    window.BittleApp.simulator3D = new BittleSimulator3D(container);
-    console.log('[BittleApp] 3D simulator initialized');
+    window.DogLabApp.simulator3D = new BittleSimulator3D(container);
+    console.log('[DogLabApp] 3D simulator initialized');
   } catch (e) {
-    console.error('[BittleApp] 3D init failed:', e);
+    console.error('[DogLabApp] 3D init failed:', e);
   }
 }
 

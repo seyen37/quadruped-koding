@@ -19,9 +19,9 @@
      tooltip   — hover 提示
    ========================================================== */
 
-window.BittleApp = window.BittleApp || {};
+window.DogLabApp = window.DogLabApp || {};
 
-BittleApp.BITTLE_SKILLS = [
+DogLabApp.BITTLE_SKILLS = [
   // ============== 🚶 步態（gait，週期播放）==============
   { id: 'walk_forward',  name: '走向前',     emoji: '🚶', ascii: 'kwkF', category: 'gait', anim: 'walk',        tooltip: 'walk forward — 對角腿輪流擺動前進' },
   { id: 'walk_backward', name: '倒退',       emoji: '🔙', ascii: 'kbk',  category: 'gait', anim: 'walkReverse', tooltip: 'back — 對角腿輪流擺動後退' },
@@ -81,8 +81,8 @@ BittleApp.BITTLE_SKILLS = [
 ];
 
 // 依 category 分組（給 toolbox 自動產生用）
-BittleApp.SKILLS_BY_CATEGORY = {
-  gait:    BittleApp.BITTLE_SKILLS.filter(s => s.category === 'gait'),
-  posture: BittleApp.BITTLE_SKILLS.filter(s => s.category === 'posture'),
-  show:    BittleApp.BITTLE_SKILLS.filter(s => s.category === 'show'),
+DogLabApp.SKILLS_BY_CATEGORY = {
+  gait:    DogLabApp.BITTLE_SKILLS.filter(s => s.category === 'gait'),
+  posture: DogLabApp.BITTLE_SKILLS.filter(s => s.category === 'posture'),
+  show:    DogLabApp.BITTLE_SKILLS.filter(s => s.category === 'show'),
 };

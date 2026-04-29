@@ -15,6 +15,7 @@ related:
 
 | Round | 主題 | 版本 |
 |---|---|---|
+| 24 ⭐ | P 任務：BittleApp → DogLabApp namespace 重構 + F 任務：5 個事件積木 + events dispatcher + 手動觸發 UI | v0.5.0 |
 | 23 | 運維：清理 git remote pushurl 統一為純 alias 風格 + 公司電腦 SSH 指引 + personal-playbook 雙 backup setup | — |
 | 22 ⭐ | 改名 DogLab Coding + repo rename to quadruped-koding | v0.4.11 |
 | 21 | 7 個視覺修正 + 命名議題提出 | v0.4.11 |
@@ -41,6 +42,70 @@ related:
 | 0 | 需求接收與規劃 | — |
 
 ⭐ = 重大里程碑
+
+---
+
+## ⭐ Round 24 — 2026-04-28 — v0.5.0 namespace 重構 + 事件積木
+
+### 用戶選擇
+P + F 兩個任務一個 round 連做。
+
+### P 任務：BittleApp → DogLabApp（清 ADR-010 technical debt）
+- 9 個 .js 檔 replace_all
+- 107 處全部成功
+- 對應 **ADR-011**
+
+### F 任務：加 5 個事件積木 + dispatcher
+**新積木**（在 toolbox「⚡ 事件感測」分類）：
+| 積木 | event name | 補充 |
+|---|---|---|
+| 🤚 當被舉起時 | lifted | — |
+| 💥 當跌落時 | dropped | — |
+| 👆 當頭被觸碰時 | touch_head | — |
+| 📏 當前方距離小於 N cm | distance_lt | 含 N 數字輸入 |
+| 🔋 當電量低於 N V | voltage_lt | 含 N 數字輸入 |
+
+**架構（ADR-012）**：手動觸發模式
+- `DogLabApp.events.{on, trigger, reset}` API
+- Hat block 用 `appendStatementInput('DO')` 接收動作積木
+- Generator 包成 `DogLabApp.events.on('lifted', async () => { ... })`
+- Run 按鈕開始時 reset events（避免殘留）
+
+**模擬觸發 UI**：模擬器下方加 5 個 `.btn-event` 按鈕，點擊立即觸發對應事件 + log 記錄。
+
+### 影響檔案
+- `js/bittle-blocks.js` — namespace + 5 個事件積木
+- `js/bittle-generators.js` — namespace + 5 個 generators
+- `js/blockly-config.js` — namespace + toolbox 加事件分類
+- `js/main.js` — namespace + DogLabApp.events + 觸發按鈕 handler
+- `js/bittle-skills-data.js` / `simulator-svg.js` / `simulator-3d.js` / `serial.js` / `robots/IRobot.js` — namespace
+- `index.html` — version v0.5.0 + 事件觸發列 HTML
+- `css/style.css` — 事件觸發按鈕樣式
+- `DECISIONS.md` — ADR-011 + ADR-012
+- `WORKLOG.md` — 本 Round
+
+### Commit message 建議
+```
+feat(v0.5.0): rename namespace to DogLabApp + add 5 event blocks with trigger UI
+```
+
+### 下一步
+1. push
+2. 重整 Pages 1-3 分鐘
+3. 測試：拖「🤚 當被舉起時」block，內接「打招呼」→ 執行 → 點下方「🤚 被舉起」按鈕 → 應該看到打招呼動作
+
+### 範例工作流
+```
+🤚 當被舉起時 (hat)
+  └─ 👋 打招呼
+  └─ 🔊 蜂鳴
+
+🟢 當程式開始
+  └─ 🧍 站穩
+
+→ 按 ▶ 執行：先站穩、然後 events 持續監聽
+→ 點「🤚 被舉起」按鈕：執行打招呼 + 蜂鳴
+```
 
 ---
 
