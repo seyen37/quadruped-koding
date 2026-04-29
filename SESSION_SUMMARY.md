@@ -9,13 +9,13 @@ purpose: 讓未來新 session 能快速接續本專案開發
 
 ## 🎯 一句話現況
 
-從 0 起步，22 個 round 內**完成可上線使用的 Scratch-like 機器狗編程實驗室**：51 個動作積木 + Three.js 3D 模擬器 + Web Serial 連實機 + 多機器人擴充架構。已部署 GitHub Pages，並改名為 DogLab Coding 規避商標爭議。
+從 0 起步，23 個 round 內**完成可上線使用的 Scratch-like 機器狗編程實驗室**：51 個動作積木 + Three.js 3D 模擬器 + Web Serial 連實機 + 多機器人擴充架構。已部署 GitHub Pages、改名為 DogLab Coding 規避商標爭議、雙 GitHub 備份 + 跨電腦 git pa workflow 全部就位。
 
 ## 📊 量化成果
 
 | 指標 | 數據 |
 |---|---|
-| 開發 round | **22 個** |
+| 開發 round | **23 個** |
 | 程式碼檔案 | **24 個**（HTML / CSS / JS / Markdown） |
 | 動作積木 | **51 個**（13 步態 + 8 姿勢 + 30 表演動作） |
 | Animation library | **13 種**（walk / sit / hi / jump / kick / pushUp...） |
@@ -157,4 +157,15 @@ purpose: 讓未來新 session 能快速接續本專案開發
 
 ---
 
-*Session 1 結束於 2026-04-28。所有改動已 commit（除 Round 22 改名相關，待用戶 push）。下次新 Cowork session 開始時，AI 助理會自動延續本專案工作模式（記憶系統已存）。*
+*Session 1 結束於 2026-04-28。Round 1-23 完整紀錄。雙 GitHub backup + git pa workflow 已運作。下次新 Cowork session 開始時，AI 助理會自動延續本專案工作模式（記憶系統已存）。*
+
+## 🛠️ 工作流速查（給未來自己）
+
+```
+開工：git pull
+收工：git pa  （等同 git push origin main && git push backup main）
+新 repo：兩邊 GitHub 各建空 repo → add origin/backup → push -u origin main && push -u backup main → 之後 git pa
+跨電腦：~/.ssh/config 設 host alias、SSH key 各電腦各自生成，公鑰加到 GitHub
+```
+
+詳見 [`personal-playbook/PROJECT_PLAYBOOK.md`](https://github.com/seyen37/personal-playbook)（私人 repo）。

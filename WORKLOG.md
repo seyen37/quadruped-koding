@@ -15,6 +15,7 @@ related:
 
 | Round | 主題 | 版本 |
 |---|---|---|
+| 23 | 運維：清理 git remote pushurl 統一為純 alias 風格 + 公司電腦 SSH 指引 + personal-playbook 雙 backup setup | — |
 | 22 ⭐ | 改名 DogLab Coding + repo rename to quadruped-koding | v0.4.11 |
 | 21 | 7 個視覺修正 + 命名議題提出 | v0.4.11 |
 | 20 ⭐ | 腿部加「ㄑ字形」站姿 + 4-bar 彈簧連動 | v0.4.10 |
@@ -40,6 +41,50 @@ related:
 | 0 | 需求接收與規劃 | — |
 
 ⭐ = 重大里程碑
+
+---
+
+## Round 23 — 2026-04-28 — 運維：跨 repo git pa workflow 統一
+
+### 用戶情境
+跨電腦（公司 / 家用）+ 跨 repo（quadruped-koding / personal-playbook），需要統一的 git push 工作流。
+
+### 完成項目
+
+**1. 公司電腦 SSH 初次設定指引**
+給用戶 5 步驟 PowerShell 命令（生成 ed25519 key、加到 GitHub seyen37、建立 ~/.ssh/config、測試、用實際路徑 clone）。也補了「如要雙帳號（seyenbot 備份）」延伸步驟。
+
+**2. personal-playbook 雙 backup setup**
+- 在 seyenbot 建 Private repo `personal-playbook`
+- 本地加 `backup` remote（指 seyenbot）
+- `git fetch backup` 確認三方 commits 一致（origin/main = backup/main = HEAD）
+- `git pa` alias 測試：兩個 `Everything up-to-date` ✓
+
+**3. quadruped-koding 清理 origin pushurl**
+- 之前 ADR-002 後續實作時用了 Phase 7「set-url --add --push」讓 origin 含 2 個 push URL（自動推兩邊）
+- 與 global `git pa` alias 重疊 → seyenbot 收到 2 次 push（無害但浪費）
+- 用 `git config --unset-all remote.origin.pushurl` 清掉
+- 結果：origin 變回單一 push URL，`git pa` 純靠 alias 推兩邊（origin 1 次 + backup 1 次）
+
+**4. 兩個 repo 統一風格**
+| repo | origin | backup | git pa 行為 |
+|---|---|---|---|
+| `quadruped-koding` | seyen37（fetch+push 各 1）| seyenbot（fetch+push 各 1）| 推兩邊各 1 次 ✓ |
+| `personal-playbook` | seyen37（fetch+push 各 1）| seyenbot（fetch+push 各 1）| 推兩邊各 1 次 ✓ |
+
+### 學到的經驗
+- `git pa` global alias + 各 repo 的 backup remote 是最乾淨的雙備份模式
+- 避免混用「set-url --add --push」與 alias，會造成重複推送
+- 未來新 repo 的 setup SOP：建兩個 GitHub repo → add origin/backup → push -u 兩邊 → 直接用 git pa
+
+### 沒做的（給未來）
+- personal-playbook 的 PROJECT_PLAYBOOK.md 可補一段「§ 新 repo 雙 remote setup SOP」
+- 公司電腦的 SSH 設定還沒實際完成（用戶看完指引後再做）
+
+### Commit message 建議
+```
+chore: cleanup remote pushurl, unify git pa workflow across repos
+```
 
 ---
 
