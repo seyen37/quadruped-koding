@@ -119,12 +119,27 @@ main {
 
 /* 右側面板 */
 .right-panel {
-  width: 380px;
+  width: 500px;
   background: var(--bg-secondary);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: width 0.3s ease;
+}
+
+/* v0.5.1：放大模式 — 右側面板加寬、模擬器區占大部分高度 */
+.right-panel.expanded {
+  width: 760px;
+}
+.right-panel.expanded .panel-section:first-child {
+  flex: 4;  /* 模擬器區占 80% */
+}
+.right-panel.expanded .panel-section:last-child {
+  flex: 1;  /* log 區縮成 20% */
+}
+.right-panel.expanded #simulator-3d-area {
+  min-height: 560px;
 }
 
 .panel-section {
@@ -184,11 +199,13 @@ main {
 
 #simulator-3d-area {
   width: 100%;
-  min-height: 280px;
+  min-height: 380px;  /* v0.5.1：從 280 拉大到 380 */
+  flex: 1;            /* 讓它填滿可用空間 */
   background: var(--bg-tertiary);
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+  transition: min-height 0.3s ease;
 }
 
 #simulator-3d-area canvas {
@@ -197,21 +214,7 @@ main {
   height: 100% !important;
 }
 
-#simulator-area {
-  flex: 1;
-  background: var(--bg-tertiary);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  min-height: 200px;
-}
-
-#bittle-svg {
-  max-width: 100%;
-  max-height: 100%;
-}
+/* v0.5.1：移除 #simulator-area 與 #bittle-svg 規則（2D SVG 已下線）*/
 
 #status-line {
   font-size: 13px;
@@ -343,11 +346,4 @@ main {
   width: 16px !important;
 }
 
-/* ===== SVG 模擬器動畫過渡 =====
-   注意：腿與頭都用「外層 group 定位 + 內層 group 旋轉」的結構，
-   不用 CSS transform-origin / transform-box（那會與 SVG 屬性衝突）。
-   旋轉中心 (0,0) 由 SVG 結構自然決定。 */
-#bittle-svg g[id^="leg-"],
-#bittle-svg #head {
-  transition: transform 0.3s ease-in-out;
-}
+/* v0.5.1：移除 SVG 模擬器動畫過渡規則（2D 已下線）*/

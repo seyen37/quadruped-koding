@@ -26,7 +26,7 @@
     <div class="brand">
       <span class="logo">🐕‍🦺</span>
       <span class="title">DogLab Coding</span>
-      <span class="version">v0.5.0</span>
+      <span class="version">v0.5.1</span>
     </div>
     <div class="actions">
       <button id="btn-mode" class="btn-secondary">模式：🖥️ 模擬</button>
@@ -44,61 +44,11 @@
     <aside class="right-panel">
       <div class="panel-section">
         <div class="panel-header">
-          <h3>模擬器</h3>
-          <button id="btn-sim-mode" class="btn-mini" title="切換 2D / 3D 模擬模式">🎬 切到 3D</button>
+          <h3>3D 模擬器</h3>
+          <button id="btn-sim-size" class="btn-mini" title="放大／縮小模擬器畫面">🔍 放大</button>
         </div>
-        <!-- 2D SVG 模擬器（預設顯示）-->
-        <div id="simulator-area">
-          <!-- Bittle SVG inline (避免 file:// 的 fetch CORS 問題) -->
-          <svg id="bittle-svg" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
-            <!-- 背景地面 -->
-            <line x1="20" y1="240" x2="380" y2="240" stroke="#444" stroke-width="2" stroke-dasharray="4,4" />
-
-            <!-- 身體 -->
-            <rect id="body" x="100" y="110" width="200" height="60" rx="12" fill="#2a3f5f" stroke="#5fa9e8" stroke-width="2" />
-
-            <!-- 頭部（外層 group 定位、內層 head 可旋轉，旋轉中心 (0,0) 在頭部圓心） -->
-            <g transform="translate(310, 130)">
-              <g id="head">
-                <circle cx="0" cy="0" r="30" fill="#2a3f5f" stroke="#5fa9e8" stroke-width="2" />
-                <circle cx="-8" cy="-5" r="6" fill="#5fa9e8" />
-                <circle cx="8" cy="-5" r="6" fill="#5fa9e8" />
-                <line x1="-12" y1="8" x2="12" y2="8" stroke="#5fa9e8" stroke-width="2" />
-              </g>
-            </g>
-
-            <!-- 4 條腿（外層 group 定位、內層 leg-XX 可旋轉，旋轉中心 (0,0) 自然在腿頂） -->
-            <g transform="translate(125, 170)">
-              <g id="leg-LF">
-                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
-                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
-              </g>
-            </g>
-            <g transform="translate(165, 170)">
-              <g id="leg-RF">
-                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
-                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
-              </g>
-            </g>
-            <g transform="translate(235, 170)">
-              <g id="leg-LB">
-                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
-                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
-              </g>
-            </g>
-            <g transform="translate(275, 170)">
-              <g id="leg-RB">
-                <rect x="-7" y="0" width="14" height="55" fill="#3a3a3a" rx="3" />
-                <circle cx="0" cy="0" r="6" fill="#5fa9e8" />
-              </g>
-            </g>
-
-            <!-- 機型標示 -->
-            <text x="200" y="265" text-anchor="middle" fill="#888" font-size="11" font-family="monospace">Bittle (NyBoard V1)</text>
-          </svg>
-        </div>
-        <!-- 3D Three.js 模擬器（預設隱藏，按鈕切換）-->
-        <div id="simulator-3d-area" style="display: none;"></div>
+        <!-- v0.5.1：移除 2D SVG 區塊，3D 為唯一模擬器（simulator-svg.js 仍保留檔案以利歷史追溯）-->
+        <div id="simulator-3d-area"></div>
         <div id="status-line">狀態：等待指令</div>
         <!-- v0.5.0 事件觸發列（模擬模式手動觸發感測事件）-->
         <div class="event-trigger-bar">
@@ -125,7 +75,7 @@
   <script src="js/bittle-blocks.js"></script>
   <script src="js/bittle-generators.js"></script>
   <script src="js/robots/IRobot.js"></script>
-  <script src="js/simulator-svg.js"></script>
+  <!-- v0.5.1：移除 simulator-svg.js 載入（2D 已下線；檔案保留供歷史追溯）-->
   <script src="js/serial.js"></script>
   <script src="js/main.js"></script>
   <!-- v0.4 3D 模擬器（ES module，會在所有 sync script 之後執行）-->

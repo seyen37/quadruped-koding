@@ -36,20 +36,18 @@ DogLabApp.events = {
 // === Runtime：根據模式派送指令到 simulator 或 serial ===
 DogLabApp.runtime = {
   mode: 'simulator', // 'simulator' or 'serial'
-  simMode: '2d',     // '2d' or '3d'（v0.4 新增）
   abortRequested: false,
 
   async send(asciiCommand) {
     if (this.abortRequested) throw new Error('已被使用者停止');
     if (this.mode === 'serial' && DogLabApp.serial.isConnected()) {
       return DogLabApp.serial.send(asciiCommand);
-    } else {
-      // 模擬模式：依 simMode 選 2D / 3D
-      if (this.simMode === '3d' && DogLabApp.simulator3D) {
-        return DogLabApp.simulator3D.executeSkill(asciiCommand);
-      }
-      return DogLabApp.simulator.executeSkill(asciiCommand);
     }
+    // v0.5.1：模擬模式統一走 3D simulator
+    if (DogLabApp.simulator3D) {
+      return DogLabApp.simulator3D.executeSkill(asciiCommand);
+    }
+    DogLabApp.log('⚠️ 3D 模擬器尚未初始化，跳過指令: ' + asciiCommand, 'warn');
   },
 
   async wait(seconds) {
@@ -78,8 +76,7 @@ DogLabApp.log = function (msg, level) {
 
 // === 主程式進入點 ===
 window.addEventListener('DOMContentLoaded', () => {
-  // 初始化模擬器
-  DogLabApp.initSimulator();
+  // v0.5.1：移除 2D simulator 初始化（3D simulator 由 simulator-3d.js auto-init）
 
   // 注入 Blockly
   DogLabApp.workspace = Blockly.inject('blocklyDiv', DogLabApp.blocklyOptions);
@@ -93,7 +90,7 @@ window.addEventListener('DOMContentLoaded', () => {
     console.warn('預設 workspace 載入失敗:', e);
   }
 
-  DogLabApp.log('DogLab Coding v0.5.0 已就緒', 'success');
+  DogLabApp.log('DogLab Coding v0.5.1 已就緒', 'success');
   DogLabApp.log('提示：把動作積木接到「🟢 當程式開始」下面，按 ▶ 執行查看效果');
 
   // === 綁定按鈕 ===
@@ -151,33 +148,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // === v0.4 新增：2D / 3D 模擬模式切換 ===
-  document.getElementById('btn-sim-mode').onclick = () => {
-    const svgArea = document.getElementById('simulator-area');
-    const threeDArea = document.getElementById('simulator-3d-area');
-    const btn = document.getElementById('btn-sim-mode');
-
-    if (DogLabApp.runtime.simMode === '2d') {
-      // 切到 3D
-      if (!DogLabApp.simulator3D) {
-        DogLabApp.log('⚠️ 3D 模擬器尚未載入，請稍候再試（檢查瀏覽器是否支援 ES modules）', 'warn');
-        return;
+  // === v0.5.1 新增：模擬器尺寸切換（普通 ⇄ 放大）===
+  document.getElementById('btn-sim-size').onclick = () => {
+    const rightPanel = document.querySelector('.right-panel');
+    const btn = document.getElementById('btn-sim-size');
+    const expanded = rightPanel.classList.toggle('expanded');
+    btn.textContent = expanded ? '🔍 縮小' : '🔍 放大';
+    DogLabApp.log(expanded ? '已放大模擬器畫面' : '已恢復模擬器普通大小', 'success');
+    // CSS transition 跑完之後再 resize（讓 Three.js canvas 抓到正確的新尺寸）
+    setTimeout(() => {
+      if (DogLabApp.simulator3D && DogLabApp.simulator3D.resize) {
+        DogLabApp.simulator3D.resize();
       }
-      DogLabApp.runtime.simMode = '3d';
-      svgArea.style.display = 'none';
-      threeDArea.style.display = 'block';
-      btn.textContent = '🖼️ 切回 2D';
-      // 給 3D simulator 一個 frame 重新調整 canvas 大小
-      setTimeout(() => DogLabApp.simulator3D.resize(), 50);
-      DogLabApp.log('已切換到 3D 模擬器（用滑鼠拖拉旋轉視角，滾輪縮放）', 'success');
-    } else {
-      // 切回 2D
-      DogLabApp.runtime.simMode = '2d';
-      svgArea.style.display = 'block';
-      threeDArea.style.display = 'none';
-      btn.textContent = '🎬 切到 3D';
-      DogLabApp.log('已切換到 2D SVG 模擬器', 'success');
-    }
+    }, 320);
   };
 
   document.getElementById('btn-connect').onclick = async () => {
